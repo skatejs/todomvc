@@ -1,53 +1,93 @@
 (function (window, skate) {
-	'use strict';
+    'use strict';
 
-	var KEYCODE_ENTER = 13;
-	var slice = Array.prototype.slice;
+    var KEYCODE_ENTER = 13;
+    var slice = Array.prototype.slice;
 
-	skate('todo-list', {
-		events: {
-			'keyup .new-todo': function (elem, e, target) {
-				if (e.keyCode === KEYCODE_ENTER) {
-					var todoItem = new TodoItem();
-					todoItem.text = target.value;
-					elem.todoList.appendChild(todoItem);
-					target.value = '';
-					elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
-				}
-			},
-			destroy: function (elem, e) {
-				elem.todoList.removeChild(e.target);
-				elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
-				elem.querySelector('.clear-completed').classList[elem.todosCompleted.length ? 'remove' : 'add']('hidden');
-			},
-			completed: function (elem, e) {
-				elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
-				elem.querySelector('.clear-completed').classList[elem.todosCompleted.length ? 'remove' : 'add']('hidden');
-			}
-		},
-		prototype: {
-			get todos () {
-				return slice.call(this.todoList.children);
-			},
+    skate('todo-list', {
+        events: {
+            'keyup .new-todo': function (elem, e, target) {
+                if (e.keyCode === KEYCODE_ENTER) {
+                    if (!target.value) {
+                        return;
+                    }
 
-			get todosCompleted () {
-				return this.todos.filter(function (todo) {
-					return todo.completed;
-				});
-			},
+                    var todoItem = new TodoItem();
+                    todoItem.text = target.value;
+                    elem.todoList.appendChild(todoItem);
+                    target.value = '';
+                    elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
+                }
+            },
+            destroy: function (elem, e) {
+                elem.todoList.removeChild(e.target);
+                elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
+                elem.querySelector('.clear-completed').classList[elem.todosCompleted.length ? 'remove' : 'add']('hidden');
+            },
+            completed: function (elem, e) {
+                elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
+                elem.querySelector('.clear-completed').classList[elem.todosCompleted.length ? 'remove' : 'add']('hidden');
+            },
+            // all selector
+            'click a[href$="/"]': function (elem, e, target) {
+                elem.todos.forEach(function (todo) {
+                    todo.classList.remove('hidden');
+                });
+                elem.querySelector('.selected').classList.remove('selected');
+                target.classList.add('selected');
+            },
+            'click a[href$="/active"]': function (elem, e, target) {
+                elem.todosCompleted.forEach(function (todo) {
+                    todo.classList.add('hidden');
+                });
+                elem.todosIncomplete.forEach(function (todo) {
+                    todo.classList.remove('hidden');
+                });
+                elem.querySelector('.selected').classList.remove('selected');
 
-			get todosIncomplete () {
-				return this.todos.filter(function (todo) {
-					return !todo.completed;
-				});
-			},
+                target.classList.add('selected');
+            },
+            'click a[href$="/completed"]': function (elem, e, target) {
+                elem.todosCompleted.forEach(function (todo) {
+                    todo.classList.remove('hidden');
+                });
+                elem.todosIncomplete.forEach(function (todo) {
+                    todo.classList.add('hidden');
+                });
+                elem.querySelector('.selected').classList.remove('selected');
+                target.classList.add('selected');
+            },
+            'click .clear-completed': function (elem, e, target) {
+                elem.todosCompleted.forEach(function (todo) {
+                    elem.todoList.removeChild(todo);
+                });
 
-			get todoList () {
-				return this.querySelector('.todo-list');
-			}
-		},
-		template: function (elem) {
-			elem.innerHTML = `
+                elem.querySelector('.clear-completed').classList.add('hidden');
+            }
+        },
+        prototype: {
+            get todos () {
+                return slice.call(this.todoList.children);
+            },
+
+            get todosCompleted () {
+                return this.todos.filter(function (todo) {
+                    return todo.completed;
+                });
+            },
+
+            get todosIncomplete () {
+                return this.todos.filter(function (todo) {
+                    return !todo.completed;
+                });
+            },
+
+            get todoList () {
+                return this.querySelector('.todo-list');
+            }
+        },
+        template: function (elem) {
+            elem.innerHTML = `
 				<section class="todoapp">
 					<header class="header">
 						<h1>todos</h1>
@@ -86,66 +126,66 @@
 					</footer>
 				</section>
 			`;
-		}
-	});
+        }
+    });
 
-	var TodoItem = skate('todo-item', {
-		extends: 'li',
-		attributes: {
-			completed: {
-				created: function (elem) {
-					elem.classList.add('completed');
-					elem.querySelector('input[type="checkbox"]').checked = true;
-					elem.dispatchEvent(new CustomEvent('completed', {
-						bubbles: true,
-						detail: true
-					}));
-				},
-				removed: function (elem) {
-					elem.classList.remove('completed');
-					elem.querySelector('input[type="checkbox"]').checked = false;
-					elem.dispatchEvent(new CustomEvent('completed', {
-						bubbles: true,
-						detail: false
-					}));
-				}
-			},
-			editing: {
-				created: function (elem) {
-					elem.classList.add('editing');
-				},
-				removed: function (elem) {
-					elem.classList.remove('editing');
-				}
-			},
-			text: function (elem, diff) {
-				elem.querySelector('label').textContent = diff.newValue.trim();
-			}
-		},
-		events: {
-			'change .toggle': function (elem, e, target) {
-				elem.completed = target.checked ? true : undefined;
-			},
-			'click .destroy': function (elem) {
-				elem.dispatchEvent(new CustomEvent('destroy', { bubbles: true }));
-			},
-			'dblclick label': function (elem) {
-				elem.querySelector('.edit').value = elem.text;
-				elem.classList.add('editing');
-			},
-			'blur .edit': function (elem, e, target) {
-				elem.text = target.value;
-				elem.classList.remove('editing');
-			},
-			'keyup .edit': function (elem, e, target) {
-				if (e.keyCode === KEYCODE_ENTER) {
-					elem.text = target.value;
-					elem.classList.remove('editing');
-				}
-			}
-		},
-		template: function (elem) {
-			elem.innerHTML = `
+    var TodoItem = skate('todo-item', {
+        extends: 'li',
+        attributes: {
+            completed: {
+                created: function (elem) {
+                    elem.classList.add('completed');
+                    elem.querySelector('input[type="checkbox"]').checked = true;
+                    elem.dispatchEvent(new CustomEvent('completed', {
+                        bubbles: true,
+                        detail: true
+                    }));
+                },
+                removed: function (elem) {
+                    elem.classList.remove('completed');
+                    elem.querySelector('input[type="checkbox"]').checked = false;
+                    elem.dispatchEvent(new CustomEvent('completed', {
+                        bubbles: true,
+                        detail: false
+                    }));
+                }
+            },
+            editing: {
+                created: function (elem) {
+                    elem.classList.add('editing');
+                },
+                removed: function (elem) {
+                    elem.classList.remove('editing');
+                }
+            },
+            text: function (elem, diff) {
+                elem.querySelector('label').textContent = diff.newValue.trim();
+            }
+        },
+        events: {
+            'change .toggle': function (elem, e, target) {
+                elem.completed = target.checked ? true : undefined;
+            },
+            'click .destroy': function (elem) {
+                elem.dispatchEvent(new CustomEvent('destroy', {bubbles: true}));
+            },
+            'dblclick label': function (elem) {
+                elem.querySelector('.edit').value = elem.text;
+                elem.classList.add('editing');
+            },
+            'blur .edit': function (elem, e, target) {
+                elem.text = target.value;
+                elem.classList.remove('editing');
+            },
+            'keyup .edit': function (elem, e, target) {
+                if (e.keyCode === KEYCODE_ENTER) {
+                    elem.text = target.value;
+                    elem.classList.remove('editing');
+                }
+            }
+        },
+        template: function (elem) {
+            elem.innerHTML = `
 				<div class="view">
 					<input class="toggle" type="checkbox">
 					<label>Taste JavaScript</label>
@@ -153,7 +193,7 @@
 				</div>
 				<input class="edit" value="Create a TodoMVC template">
 			`;
-		}
-	});
+        }
+    });
 
 })(window, window.skate);
