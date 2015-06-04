@@ -1,4 +1,4 @@
-(function () {
+(function (window) {
 	'use strict';
 
 	var storage = {
@@ -32,8 +32,11 @@
 		getKey: function (id) {
 			return this.prefix + '-' + id;
 		},
+		getItemFromKey: function(key) {
+			return JSON.parse(this.store.getItem(key));
+		},
 		getItem: function (id) {
-			this.store.getItem(this.getKey(id));
+			return this.getItemFromKey(this.getKey(id));
 		},
 		getAll: function () {
 			return Object.keys(this.store)
@@ -42,7 +45,7 @@
 					return key.indexOf(this.prefix) === 0;
 				}.bind(this))
 				.map(function (key) {
-					return this.store.getItem(key);
+					return this.getItemFromKey(key);
 				}.bind(this));
 		},
 		save: function (data) {
@@ -54,5 +57,8 @@
 		removeAll: function () {
 			this.store.clear();
 		}
-	}
-})();
+	};
+
+	// exports
+	window.storage = storage;
+})(window);
