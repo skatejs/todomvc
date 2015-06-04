@@ -1,6 +1,10 @@
-(function (window) {
+(function (window, exports) {
 	'use strict';
 
+	/**
+	 * Storage
+	 * This object is not part of skate - but we are using it to interact with localStorage
+	 */
 	var storage = {
 		create: function (type, prefix) {
 			if (!type) {
@@ -60,5 +64,5 @@
 	};
 
 	// exports
-	window.storage = storage;
-})(window);
+	exports.storage = storage;
+})(window, window.app);
