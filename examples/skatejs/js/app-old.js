@@ -5,23 +5,6 @@
     var slice = Array.prototype.slice;
 
     skate('todo-app', {
-        events: {
-            'clear': function (elem, e, target) {
-                console.log(e.type);
-            },
-            'create': function (elem, e, target) {
-                console.log(e.type);
-            },
-            'destroy': function (elem, e, target) {
-                console.log(e.type);
-            },
-            'filter': function (elem, e, target) {
-                console.log(e.type);
-            },
-            'toggle': function (elem, e, target) {
-                console.log(e.type);
-            }
-        },
         template: function (elem) {
             elem.innerHTML = `
 				<section class="todoapp">
@@ -46,24 +29,6 @@
 
     skate('todo-input', {
         extends: 'input',
-        events: {
-            keyup: function (elem, e, target) {
-                if (e.keyCode === KEYCODE_ENTER) {
-                    var value = (elem.value || '').trim();
-
-                    if (!value) {
-                        return;
-                    }
-
-                    elem.dispatchEvent(new CustomEvent('create', {
-                        bubbles: true,
-                        detail: value
-                    }));
-
-                    elem.value = '';
-                }
-            }
-        },
         created: function (elem) {
             elem.classList.add('new-todo');
             elem.setAttribute('placeholder', 'What needs to be done?');
@@ -72,14 +37,6 @@
     });
 
     skate('todo-toggle', {
-        events: {
-            'change input[type="checkbox"]': function (elem, e, target) {
-                elem.dispatchEvent(new CustomEvent('toggle', {
-                    bubbles: true,
-                    detail: !!elem.checked
-                }));
-            }
-        },
         template: function (elem) {
             elem.innerHTML = `
                 <input class="toggle-all" type="checkbox">
@@ -89,20 +46,6 @@
     });
 
     skate('todo-footer', {
-        events: {
-            'click .filters a': function (elem, e, target) {
-                elem.dispatchEvent(new CustomEvent('filter', {
-                    bubbles: true,
-                    detail: (target.href || '').split('#/')[1]
-                }));
-
-            },
-            'click .clear-completed': function (elem, e, target) {
-                elem.dispatchEvent(new CustomEvent('clear', {
-                    bubbles: true
-                }));
-            }
-        },
         template: function (element) {
             element.innerHTML = `
             <footer class="footer">
@@ -124,38 +67,97 @@
 
                 <!-- Hidden if no completed items are left ↓ -->
                 <button class="clear-completed">Clear completed</button>
-            </footer>`;
+            </footer>
+					`;
         }
     });
 
 
     skate('todo-list', {
-        extends: 'ul',
         events: {
+            'keyup .new-todo': function (elem, e, target) {
+                if (e.keyCode === KEYCODE_ENTER) {
+                    if (!target.value) {
+                        return;
+                    }
+
+                    var todoItem = new TodoItem();
+                    todoItem.text = target.value;
+                    elem.todoList.appendChild(todoItem);
+                    target.value = '';
+                    elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
+                }
+            },
             destroy: function (elem, e) {
-                elem.removeChild(e.target);
+                elem.todoList.removeChild(e.target);
+                elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
+                elem.querySelector('.clear-completed').classList[elem.todosCompleted.length ? 'remove' : 'add']('hidden');
+            },
+            completed: function (elem, e) {
+                elem.querySelector('.todo-count strong').textContent = elem.todosIncomplete.length;
+                elem.querySelector('.clear-completed').classList[elem.todosCompleted.length ? 'remove' : 'add']('hidden');
+            },
+            // all selector
+            'click a[href$="/"]': function (elem, e, target) {
+                elem.todos.forEach(function (todo) {
+                    todo.classList.remove('hidden');
+                });
+                elem.querySelector('.selected').classList.remove('selected');
+                target.classList.add('selected');
+            },
+            'click a[href$="/active"]': function (elem, e, target) {
+                elem.todosCompleted.forEach(function (todo) {
+                    todo.classList.add('hidden');
+                });
+                elem.todosIncomplete.forEach(function (todo) {
+                    todo.classList.remove('hidden');
+                });
+                elem.querySelector('.selected').classList.remove('selected');
+
+                target.classList.add('selected');
+            },
+            'click a[href$="/completed"]': function (elem, e, target) {
+                elem.todosCompleted.forEach(function (todo) {
+                    todo.classList.remove('hidden');
+                });
+                elem.todosIncomplete.forEach(function (todo) {
+                    todo.classList.add('hidden');
+                });
+                elem.querySelector('.selected').classList.remove('selected');
+                target.classList.add('selected');
+            },
+            'click .clear-completed': function (elem, e, target) {
+                elem.todosCompleted.forEach(function (todo) {
+                    elem.todoList.removeChild(todo);
+                });
+
+                elem.querySelector('.clear-completed').classList.add('hidden');
             }
         },
         prototype: {
-            get complete () {
-                return slice
-                    .call(this.children)
-                    .filter(function (todo) {
-                        return todo.completed;
-                    });
+            get todos () {
+                return slice.call(this.todoList.children);
             },
 
-            get incomplete () {
-                return slice
-                    .call(this.children)
-                    .filter(function (todo) {
-                        return !todo.completed;
-                    });
+            get todosCompleted () {
+                return this.todos.filter(function (todo) {
+                    return todo.completed;
+                });
+            },
+
+            get todosIncomplete () {
+                return this.todos.filter(function (todo) {
+                    return !todo.completed;
+                });
+            },
+
+            get todoList() {
+                return this.querySelector('.todo-list');
             }
         }
     });
 
-    skate('todo-item', {
+    var TodoItem = skate('todo-item', {
         extends: 'li',
         attributes: {
             completed: {
