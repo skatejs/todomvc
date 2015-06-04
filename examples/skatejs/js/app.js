@@ -5,6 +5,11 @@
 	var slice = Array.prototype.slice;
 
 	var TodoApp = skate('todo-app', {
+		attributes: {
+			filter: {
+				value: undefined
+			}
+		},
 		events: {
 			clear: function (elem) {
 				elem.list.completed.forEach(function (item) {
@@ -50,6 +55,7 @@
 
 			},
 			filter: function (elem, e) {
+				console.log(e.type);
 				var type = e.detail;
 				var list = elem.list;
 				var items = list.items;
@@ -63,18 +69,30 @@
 						item.hidden = false
 					});
 
+					elem.filter = type;
 					return;
 				}
 
+				// cannot find match or using 'all'
+				elem.filter = undefined;
 				items.forEach(function (item) {
 					item.hidden = false;
 				});
 			},
 			// TODO: reinitialize filter
+			// we don't know what the current filter is!
+			// options:
+			// 1. add the filter as an attribute to this element
 			toggle: function (elem, e) {
 				elem.list.items.forEach(function (item) {
 					item.completed = e.detail ? true : undefined;
 				});
+
+				console.log('dispatching filter after toggle');
+				elem.dispatchEvent(new CustomEvent('filter', {
+					bubbles: true,
+					detail: elem.filter
+				}));
 			}
 		},
 		prototype: {
@@ -203,7 +221,8 @@
 						return anchor;
 					})
 					.filter(function (anchor) {
-						return anchor.href.indexOf(value) > -1;
+						var type = anchor.hash.replace('#/', '');
+						return type === value;
 					})
 					.forEach(function (anchor) {
 						anchor.classList.add('selected');
