@@ -4,12 +4,11 @@
 
 	var TodoItem = skate('todo-item', {
 		extends: 'li',
-		created: function (elem) {
-			elem.todoId = new Date().getTime();
-		},
 		attributes: {
 			todoId: {
-				value: undefined
+				value: function () {
+					return new Date().getTime();
+				}
 			},
 			completed: {
 				created: function (elem) {
@@ -80,7 +79,7 @@
 					id: this.todoId,
 					text: this.text,
 					completed: !!this.completed
-				}
+				};
 			},
 			set data(value) {
 				if (!value) {

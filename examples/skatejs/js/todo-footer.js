@@ -1,6 +1,11 @@
 (function (window, skate, exports) {
 	'use strict';
 	var TodoFooter = skate('todo-footer', {
+		/**
+		 * Super basic routing on initialisation.
+		 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
+		 * 	- Skate has no opinions about what type of routing solution to use.
+		 */
 		attached: function (elem) {
 			// Set default filter state
 			var filter = window.location.hash.replace('#/', '');

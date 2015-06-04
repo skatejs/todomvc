@@ -8,19 +8,16 @@
 			}
 		},
 		created: function (elem) {
-			// Storage (
+			// Storage
 			elem.store = storage.create('localStorage', 'todo-skate');
 			console.log(elem.store.getAll());
 
 			elem.store
 				.getAll()
-				.map(function (data) {
+				.forEach(function (data) {
 					var todoItem = new TodoItem();
 					todoItem.data = data;
-					return todoItem
-				})
-				.forEach(function (todo) {
-					elem.list.appendChild(todo);
+					elem.list.appendChild(todoItem);
 				});
 
 		},
