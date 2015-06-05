@@ -1,17 +1,17 @@
-(function (window, skate, storage, TodoItem, exports) {
+(function (exports, skate, TodoItem) {
 	'use strict';
-	var TodoApp = skate('todo-app', {
 
+	exports.TodoApp = skate('todo-app', {
 		attributes: {
 			filter: {
+				value: undefined
+			},
+			storageId: {
 				value: undefined
 			}
 		},
 		created: function (elem) {
-			// Storage
-			elem.store = storage.create('localStorage', 'todo-skate');
-			console.log(elem.store.getAll());
-
+			elem.store = document.getElementById(elem.storageId);
 			elem.store
 				.getAll()
 				.forEach(function (data) {
@@ -19,7 +19,6 @@
 					todoItem.data = data;
 					elem.list.appendChild(todoItem);
 				});
-
 		},
 		events: {
 			// TODO: storage
@@ -72,7 +71,6 @@
 
 			},
 			filter: function (elem, e) {
-				console.log(e.type);
 				var type = e.detail;
 				var list = elem.list;
 				var items = list.items;
@@ -105,7 +103,6 @@
 					item.completed = e.detail ? true : undefined;
 				});
 
-				console.log('dispatching filter after toggle');
 				elem.dispatchEvent(new CustomEvent('filter', {
 					bubbles: true,
 					detail: elem.filter
@@ -113,7 +110,6 @@
 			}
 		},
 		prototype: {
-
 			get footer () {
 				return this.querySelector('todo-footer');
 			},
@@ -141,7 +137,4 @@
 				'</section>';
 		}
 	});
-
-	// exports
-	exports.TodoApp = TodoApp;
-})(window, window.skate, window.app.storage, window.app.TodoItem, window.app);
+})(window, window.skate, window.TodoItem);

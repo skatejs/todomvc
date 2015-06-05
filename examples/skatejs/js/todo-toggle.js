@@ -1,6 +1,7 @@
-(function (window, skate, exports) {
+(function (exports, skate) {
 	'use strict';
-	var TodoToggle = skate('todo-toggle', {
+
+	exports.TodoToggle = skate('todo-toggle', {
 		attributes: {
 			selected: function (elem, diff) {
 				elem.querySelector('input[type="checkbox"]').checked = (diff.newValue === 'true' ? true : undefined);
@@ -29,7 +30,4 @@
       `;
 		}
 	});
-
-	// exports
-	exports.TodoToggle = TodoToggle;
-})(window, window.skate, window.app);
+})(window, window.skate);

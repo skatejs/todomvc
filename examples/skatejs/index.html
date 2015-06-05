@@ -8,7 +8,8 @@
 		<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
 	</head>
 	<body>
-		<todo-app></todo-app>
+		<todo-store id="todo-store"></todo-store>
+		<todo-app storage-id="todo-store"></todo-app>
 		<footer class="info">
 			<p>Double-click to edit a todo</p>
 			<!-- Remove the below line ↓ -->
@@ -20,16 +21,12 @@
 		<!-- Scripts here. Don't remove ↓ -->
 		<script src="node_modules/todomvc-common/base.js"></script>
 		<script src="node_modules/skatejs/dist/skatejs.js"></script>
-		<script src="js/namespace.js"></script>
-		<script src="js/storage.js"></script>
+		<script src="js/todo-store.js"></script>
 		<script src="js/todo-item.js"></script>
 		<script src="js/todo-app.js"></script>
 		<script src="js/todo-list.js"></script>
 		<script src="js/todo-footer.js"></script>
 		<script src="js/todo-input.js"></script>
 		<script src="js/todo-toggle.js"></script>
-
-		<!--<script src="js/storage.js"></script>-->
-		<!--<script src="js/app.js"></script>-->
 	</body>
 </html>

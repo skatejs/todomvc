@@ -1,7 +1,7 @@
-(function (window, skate, exports) {
+(function (exports, skate) {
 	'use strict';
-	var TodoList = skate('todo-list', {
-		// TODO: storage?
+
+	exports.TodoList = skate('todo-list', {
 		extends: 'ul',
 		events: {
 			destroy: function (elem, e) {
@@ -9,8 +9,6 @@
 			}
 		},
 		prototype: {
-			// override original remove function
-
 			get completed () {
 				return this.items.filter(function (todo) {
 					return todo.completed;
@@ -29,7 +27,4 @@
 			}
 		}
 	});
-
-	// exports
-	exports.TodoList = TodoList;
-})(window, window.skate, window.app);
+})(window, window.skate);

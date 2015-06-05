@@ -1,6 +1,7 @@
-(function (window, skate, exports) {
+(function (exports, skate) {
 	'use strict';
-	var TodoFooter = skate('todo-footer', {
+
+	exports.TodoFooter = skate('todo-footer', {
 		/**
 		 * Super basic routing on initialisation.
 		 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
@@ -13,7 +14,6 @@
 
 			// invalid hash
 			if (!elem.selected) {
-				console.log('invalid selected hash');
 				window.location.hash = '/';
 				filter = '';
 				elem.selected = filter;
@@ -85,7 +85,4 @@
 				'</footer>';
 		}
 	});
-
-	// exports
-	exports.TodoFooter = TodoFooter;
-})(window, window.skate, window.app);
+})(window, window.skate);

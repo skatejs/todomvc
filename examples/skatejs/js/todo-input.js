@@ -1,7 +1,9 @@
-(function (window, skate, exports) {
+(function (exports, skate) {
 	'use strict';
+
 	var KEYCODE_ENTER = 13;
-	var TodoInput = skate('todo-input', {
+
+	exports.TodoInput = skate('todo-input', {
 		extends: 'input',
 		events: {
 			keyup: function (elem, e) {
@@ -27,7 +29,4 @@
 			elem.setAttribute('autofocus', '');
 		}
 	});
-
-	// exports
-	exports.TodoInput = TodoInput;
-})(window, window.skate, window.app);
+})(window, window.skate);

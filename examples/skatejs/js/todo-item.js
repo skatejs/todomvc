@@ -1,8 +1,9 @@
-(function (window, skate, exports) {
+(function (exports, skate) {
 	'use strict';
+
 	var KEYCODE_ENTER = 13;
 
-	var TodoItem = skate('todo-item', {
+	exports.TodoItem = skate('todo-item', {
 		extends: 'li',
 		attributes: {
 			todoId: {
@@ -101,7 +102,4 @@
 				'<input class="edit" value="Create a TodoMVC template">';
 		}
 	});
-
-	// exports
-	exports.TodoItem = TodoItem;
-})(window, window.skate, window.app);
+})(window, window.skate);
