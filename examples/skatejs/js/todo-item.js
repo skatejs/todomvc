@@ -2,6 +2,7 @@
 	'use strict';
 
 	var KEYCODE_ENTER = 13;
+	var KEYCODE_ESCAPE = 27;
 
 	exports.TodoItem = skate('todo-item', {
 		extends: 'li',
@@ -59,8 +60,10 @@
 				}));
 			},
 			'dblclick label': function (elem) {
-				elem.querySelector('.edit').value = elem.text;
+				var edit = elem.querySelector('.edit');
+				edit.value = elem.text;
 				elem.classList.add('editing');
+				edit.focus();
 			},
 			'blur .edit': function (elem, e, target) {
 				elem.text = target.value;
@@ -70,6 +73,11 @@
 				if (e.keyCode === KEYCODE_ENTER) {
 					elem.text = target.value;
 					elem.classList.remove('editing');
+					return;
+				}
+
+				if (e.keyCode === KEYCODE_ESCAPE) {
+					elem.querySelector('.edit').blur();
 				}
 			}
 		},
