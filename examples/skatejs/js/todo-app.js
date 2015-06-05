@@ -105,10 +105,6 @@
 					item.hidden = false;
 				});
 			},
-			// TODO: reinitialize filter
-			// we don't know what the current filter is!
-			// options:
-			// 1. add the filter as an attribute to this element
 			toggle: function (elem, e) {
 				elem.list.items.forEach(function (item) {
 					item.completed = e.detail ? true : undefined;
