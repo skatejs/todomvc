@@ -82,7 +82,6 @@
 			}
 		},
 		prototype: {
-			// this => element
 			get data() {
 				return {
 					id: this.todoId,
