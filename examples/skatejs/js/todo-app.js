@@ -11,6 +11,8 @@
 			}
 		},
 		created: function (elem) {
+			elem.footer.hidden = true;
+			elem.toggle.hidden = true;
 			elem.store = document.getElementById(elem.storageId);
 			elem.store
 				.getAll()
@@ -48,11 +50,10 @@
 				++elem.footer.count;
 
 				elem.store.save(item.data);
-
 			},
 			completed: function (elem, e) {
 				// toggle should be selected if every item is marked as completed
-				// 		toggle should be unselected if any item is active
+				// toggle should be unselected if any item is active
 				elem.toggle.selected = !elem.list.active.length;
 				elem.footer.count = elem.list.active.length;
 
@@ -68,7 +69,6 @@
 
 				elem.footer.hidden = true;
 				elem.toggle.hidden = true;
-
 			},
 			filter: function (elem, e) {
 				var type = e.detail;
@@ -81,7 +81,7 @@
 					});
 
 					list[type].forEach(function (item) {
-						item.hidden = false
+						item.hidden = false;
 					});
 
 					elem.filter = type;
