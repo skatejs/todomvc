@@ -11,16 +11,21 @@
 			}
 		},
 		created: function (elem) {
-			elem.footer.hidden = true;
-			elem.toggle.hidden = true;
-			elem.store = document.getElementById(elem.storageId);
-			elem.store
-				.getAll()
-				.forEach(function (data) {
-					var todoItem = new TodoItem();
-					todoItem.data = data;
-					elem.list.appendChild(todoItem);
-				});
+			var store = document.getElementById(elem.storageId);
+			var items = store.getAll();
+
+			if (!items.length) {
+				elem.footer.hidden = true;
+				elem.toggle.hidden = true;
+			}
+
+			items.forEach(function (data) {
+				var todoItem = new TodoItem();
+				todoItem.data = data;
+				elem.list.appendChild(todoItem);
+			});
+
+			elem.store = store;
 		},
 		events: {
 			// TODO: storage
