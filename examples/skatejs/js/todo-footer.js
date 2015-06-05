@@ -1,6 +1,10 @@
 (function (exports, skate) {
 	'use strict';
 
+	function parseHref (elem) {
+		return (elem.hash || '').replace('#/', '');
+	}
+
 	exports.TodoFooter = skate('todo-footer', {
 		/**
 		 * Super basic routing on initialisation.
@@ -39,12 +43,10 @@
 		},
 		events: {
 			'click .filters a': function (elem, e, target) {
-				var value = (target.hash || '').replace('#/', '');
+				elem.selected = parseHref(target);
 				elem.dispatchEvent(new CustomEvent('filter', {
-					bubbles: true,
-					detail: value
+					bubbles: true
 				}));
-				elem.selected = value;
 			},
 			'click .clear-completed': function (elem) {
 				elem.dispatchEvent(new CustomEvent('clear', {
@@ -53,6 +55,9 @@
 			}
 		},
 		prototype: {
+			get filter () {
+				return parseHref(this.selected);
+			},
 			get selected () {
 				return this.querySelector('.filters a.selected');
 			},

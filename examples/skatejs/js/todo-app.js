@@ -26,14 +26,18 @@
 			});
 
 			elem.store = store;
+
+			setTimeout(function () {
+				elem.footer.count = elem.list.active.length;
+			});
 		},
 		events: {
-			// TODO: storage
 			clear: function (elem) {
 				elem.list.completed.forEach(function (item) {
 					item.remove();
 					elem.store.remove(item.data);
 				});
+
 				elem.footer.count = elem.list.length;
 
 				if (elem.list.items.length) {
@@ -42,6 +46,7 @@
 
 				elem.footer.hidden = true;
 				elem.toggle.hidden = true;
+				elem.toggle.selected = undefined;
 			},
 			create: function (elem, e) {
 				if (!elem.list.items.length) {
@@ -52,20 +57,25 @@
 				var item = new TodoItem();
 				item.text = e.detail;
 				elem.list.appendChild(item);
-				++elem.footer.count;
-
 				elem.store.save(item.data);
+				elem.dispatchEvent(new CustomEvent('filter', {
+					bubbles: true
+				}));
+				++elem.footer.count;
+				elem.toggle.selected = undefined;
 			},
 			completed: function (elem, e) {
 				// toggle should be selected if every item is marked as completed
 				// toggle should be unselected if any item is active
 				elem.toggle.selected = !elem.list.active.length;
 				elem.footer.count = elem.list.active.length;
-
 				elem.store.save(e.target.data);
+				elem.dispatchEvent(new CustomEvent('filter', {
+					bubbles: true
+				}));
 			},
 			destroy: function (elem, e) {
-				--elem.footer.count;
+				elem.footer.count = elem.list.active.length;
 				elem.store.remove(e.target.data);
 
 				if (elem.list.items.length) {
@@ -76,7 +86,7 @@
 				elem.toggle.hidden = true;
 			},
 			filter: function (elem, e) {
-				var type = e.detail;
+				var type = elem.footer.filter;
 				var list = elem.list;
 				var items = list.items;
 
@@ -88,13 +98,9 @@
 					list[type].forEach(function (item) {
 						item.hidden = false;
 					});
-
-					elem.filter = type;
 					return;
 				}
 
-				// cannot find match or using 'all'
-				elem.filter = undefined;
 				items.forEach(function (item) {
 					item.hidden = false;
 				});
@@ -109,8 +115,7 @@
 				});
 
 				elem.dispatchEvent(new CustomEvent('filter', {
-					bubbles: true,
-					detail: elem.filter
+					bubbles: true
 				}));
 			}
 		},
