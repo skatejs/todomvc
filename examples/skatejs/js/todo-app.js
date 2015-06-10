@@ -2,14 +2,6 @@
 	'use strict';
 
 	exports.TodoApp = skate('todo-app', {
-		attributes: {
-			filter: {
-				value: undefined
-			},
-			storageId: {
-				value: undefined
-			}
-		},
 		created: function (elem) {
 			var store = document.getElementById(elem.storageId);
 			var items = store.getAll();
@@ -113,6 +105,14 @@
 				elem.dispatchEvent(new CustomEvent('filter', {
 					bubbles: true
 				}));
+			}
+		},
+		properties: {
+			filter: {
+				attr: true
+			},
+			storageId: {
+				attr: true
 			}
 		},
 		prototype: {

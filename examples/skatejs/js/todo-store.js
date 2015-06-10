@@ -4,8 +4,9 @@
 	var store = window.localStorage;
 
 	exports.TodoStore = skate('todo-store', {
-		attributes: {
+		properties: {
 			keyPrefix: {
+				attr: true,
 				value: 'todo-skatejs'
 			}
 		},

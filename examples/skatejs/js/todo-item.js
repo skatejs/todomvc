@@ -6,50 +6,6 @@
 
 	exports.TodoItem = skate('todo-item', {
 		extends: 'li',
-		attributes: {
-			todoId: {
-				value: function () {
-					return new Date().getTime();
-				}
-			},
-			completed: {
-				created: function (elem) {
-					elem.classList.add('completed');
-					elem.querySelector('input[type="checkbox"]').checked = true;
-					elem.dispatchEvent(new CustomEvent('completed', {
-						bubbles: true,
-						detail: true
-					}));
-				},
-				removed: function (elem) {
-					elem.classList.remove('completed');
-					elem.querySelector('input[type="checkbox"]').checked = false;
-					elem.dispatchEvent(new CustomEvent('completed', {
-						bubbles: true,
-						detail: false
-					}));
-				}
-			},
-			editing: {
-				created: function (elem) {
-					elem.classList.add('editing');
-				},
-				removed: function (elem) {
-					elem.classList.remove('editing');
-				}
-			},
-			hidden: {
-				created: function (elem) {
-					elem.classList.add('hidden');
-				},
-				removed: function (elem) {
-					elem.classList.remove('hidden');
-				}
-			},
-			text: function (elem, diff) {
-				elem.querySelector('label').textContent = diff.newValue.trim();
-			}
-		},
 		events: {
 			'change .toggle': function (elem, e, target) {
 				elem.completed = target.checked ? true : undefined;
@@ -78,6 +34,45 @@
 
 				if (e.keyCode === KEYCODE_ESCAPE) {
 					elem.querySelector('.edit').blur();
+				}
+			}
+		},
+		properties: {
+			todoId: {
+				value: function () {
+					return new Date().getTime();
+				}
+			},
+			completed: {
+				attr: true,
+				type: Boolean,
+				set: function (value) {
+					this.classList[value ? 'add' : 'remove']('completed');
+					this.querySelector('input[type="checkbox"]').checked = value;
+					this.dispatchEvent(new CustomEvent('completed', {
+						bubbles: true,
+						detail: value
+					}));
+				}
+			},
+			editing: {
+				attr: true,
+				type: Boolean,
+				set: function (value) {
+					this.classList[value ? 'add' : 'remove']('editing');
+				}
+			},
+			hidden: {
+				attr: true,
+				type: Boolean,
+				set: function (value) {
+					this.classList[value ? 'add' : 'remove']('hidden');
+				}
+			},
+			text: {
+				type: String,
+				set: function (value) {
+					this.querySelector('label').textContent = value.trim();
 				}
 			}
 		},

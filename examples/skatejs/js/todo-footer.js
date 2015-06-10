@@ -28,19 +28,6 @@
 				detail: filter
 			}));
 		},
-		attributes: {
-			count: function (elem, diff) {
-				elem.querySelector('.todo-count strong').textContent = Number(diff.newValue || 0);
-			},
-			hidden: {
-				created: function (elem) {
-					elem.classList.add('hidden');
-				},
-				removed: function (elem) {
-					elem.classList.remove('hidden');
-				}
-			}
-		},
 		events: {
 			'click .filters a': function (elem, e, target) {
 				elem.selected = parseHref(target);
@@ -52,6 +39,22 @@
 				elem.dispatchEvent(new CustomEvent('clear', {
 					bubbles: true
 				}));
+			}
+		},
+		properties: {
+			count: {
+				attr: true,
+				type: Number,
+				set: function (value) {
+					this.querySelector('.todo-count strong').textContent = value || 0;
+				}
+			},
+			hidden: {
+				attr: true,
+				type: Boolean,
+				set: function (value) {
+					this.classList[value ? 'add' : 'remove']('hidden');
+				}
 			}
 		},
 		prototype: {
