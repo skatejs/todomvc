@@ -6,34 +6,9 @@
 	}
 
 	exports.TodoFooter = skate('todo-footer', {
-		/**
-		 * Super basic routing on initialisation.
-		 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
-		 * 	- Skate has no opinions about what type of routing solution to use.
-		 */
-		attached: function (elem) {
-			// Set default filter state
-			var filter = window.location.hash.replace('#/', '');
-			elem.selected = filter;
-
-			// invalid hash
-			if (!elem.selected) {
-				window.location.hash = '/';
-				filter = '';
-				elem.selected = filter;
-			}
-
-			elem.dispatchEvent(new CustomEvent('filter', {
-				bubbles: true,
-				detail: filter
-			}));
-		},
 		events: {
 			'click .filters a': function (elem, e, target) {
-				elem.selected = parseHref(target);
-				elem.dispatchEvent(new CustomEvent('filter', {
-					bubbles: true
-				}));
+				elem.filter = parseHref(target);
 			},
 			'click .clear-completed': function (elem) {
 				elem.dispatchEvent(new CustomEvent('clear', {
@@ -55,29 +30,25 @@
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('hidden');
 				}
-			}
-		},
-		prototype: {
-			get filter () {
-				return parseHref(this.selected);
 			},
-			get selected () {
-				return this.querySelector('.filters a.selected');
-			},
-			set selected (value) {
-				Array.prototype.slice
-					.call(this.querySelectorAll('.filters a'))
-					.map(function (anchor) {
-						anchor.classList.remove('selected');
-						return anchor;
-					})
-					.filter(function (anchor) {
-						var type = anchor.hash.replace('#/', '');
-						return type === value;
-					})
-					.forEach(function (anchor) {
-						anchor.classList.add('selected');
-					});
+			filter: {
+				attr: true,
+				notify: true,
+				set: function (value) {
+					Array.prototype.slice
+						.call(this.querySelectorAll('.filters a'))
+						.map(function (anchor) {
+							anchor.classList.remove('selected');
+							return anchor;
+						})
+						.filter(function (anchor) {
+							var type = anchor.hash.split('#/')[1];
+							return type === value;
+						})
+						.forEach(function (anchor) {
+							anchor.classList.add('selected');
+						});
+				}
 			}
 		},
 		template: function (element) {
@@ -91,6 +62,17 @@
 				'  </ul>' +
 				'  <button class="clear-completed">Clear completed</button>' +
 				'</footer>';
+		},
+		attached: function (elem) {
+			/**
+			 * Super basic routing on initialisation.
+			 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
+			 * 	- Skate has no opinions about what type of routing solution to use.
+			 */
+			skate.ready(function () {
+				var filter = window.location.hash.split('#/')[1];
+				elem.filter = filter;
+			});
 		}
 	});
 })(window, window.skate);

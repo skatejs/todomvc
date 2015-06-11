@@ -46,6 +46,7 @@
 			completed: {
 				attr: true,
 				type: Boolean,
+				notify: true,
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('completed');
 					this.querySelector('input[type="checkbox"]').checked = value;

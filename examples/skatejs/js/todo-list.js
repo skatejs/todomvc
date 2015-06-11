@@ -1,6 +1,8 @@
 (function (exports, skate) {
 	'use strict';
 
+	var nodeProto = window.Node.prototype;
+
 	exports.TodoList = skate('todo-list', {
 		extends: 'ul',
 		events: {
@@ -8,23 +10,42 @@
 				elem.removeChild(e.target);
 			}
 		},
-		prototype: {
-			get completed () {
-				return this.items.filter(function (todo) {
-					return todo.completed;
-				});
+		properties: {
+			active: {
+				deps: ['items'],
+				get: function () {
+					return this.items.filter(function (todo) {
+						return !todo.completed;
+					});
+				}
 			},
-			get active () {
-				return this.items.filter(function (todo) {
-					return !todo.completed;
-				});
+			completed: {
+				deps: ['items'],
+				get: function () {
+					return this.items.filter(function (todo) {
+						return todo.completed;
+					});
+				}
 			},
-			get items () {
-				return Array.prototype.slice.call(this.children);
+			items: {
+				deps: ['length'],
+				get: function () {
+					return Array.prototype.slice.call(this.children);
+				}
 			},
-			get length () {
-				return this.children.length;
+			length: {
+				notify: true,
+				type: Number,
+				value: 0,
+				get: function () {
+					return this.children.length;
+				}
 			}
+		},
+		created: function (elem) {
+			skate.watch(elem, function () {
+				skate.notify(elem, 'length');
+			});
 		}
 	});
 })(window, window.skate);

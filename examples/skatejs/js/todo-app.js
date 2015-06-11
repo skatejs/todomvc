@@ -2,82 +2,17 @@
 	'use strict';
 
 	exports.TodoApp = skate('todo-app', {
-		created: function (elem) {
-			var store = document.getElementById(elem.storageId);
-			var items = store.getAll();
-
-			if (!items.length) {
-				elem.footer.hidden = true;
-				elem.toggle.hidden = true;
-			}
-
-			items.forEach(function (data) {
-				var todoItem = new TodoItem();
-				todoItem.data = data;
-				elem.list.appendChild(todoItem);
-			});
-
-			elem.store = store;
-
-			setTimeout(function () {
-				elem.footer.count = elem.list.active.length;
-			});
-		},
 		events: {
-			clear: function (elem) {
-				elem.list.completed.forEach(function (item) {
-					item.remove();
-					elem.store.remove(item.data);
-				});
-
-				elem.footer.count = elem.list.length;
-
-				if (elem.list.items.length) {
-					return;
-				}
-
-				elem.footer.hidden = true;
-				elem.toggle.hidden = true;
-				elem.toggle.selected = undefined;
-			},
-			create: function (elem, e) {
-				if (!elem.list.items.length) {
-					elem.footer.hidden = undefined;
-					elem.toggle.hidden = undefined;
-				}
-
-				var item = new TodoItem();
-				item.text = e.detail;
-				elem.list.appendChild(item);
-				elem.store.save(item.data);
-				elem.dispatchEvent(new CustomEvent('filter', {
-					bubbles: true
-				}));
-				++elem.footer.count;
-				elem.toggle.selected = undefined;
-			},
-			completed: function (elem, e) {
-				// toggle should be selected if every item is marked as completed
-				// toggle should be unselected if any item is active
-				elem.toggle.selected = !elem.list.active.length;
+			'skate-property-count': function (elem) {
+				var listLength = elem.list.length;
 				elem.footer.count = elem.list.active.length;
-				elem.store.save(e.target.data);
-				elem.dispatchEvent(new CustomEvent('filter', {
-					bubbles: true
-				}));
+				elem.footer.hidden = !listLength;
+				elem.toggle.hidden = !listLength;
 			},
-			destroy: function (elem, e) {
-				elem.footer.count = elem.list.active.length;
-				elem.store.remove(e.target.data);
-
-				if (elem.list.items.length) {
-					return;
-				}
-
-				elem.footer.hidden = true;
-				elem.toggle.hidden = true;
+			'skate-property-completed': function (elem) {
+				elem.toggle.selected = elem.list.length === elem.list.completed.length;
 			},
-			filter: function (elem, e) {
+			'skate-property-filter': function (elem) {
 				var type = elem.footer.filter;
 				var list = elem.list;
 				var items = list.items;
@@ -90,6 +25,7 @@
 					list[type].forEach(function (item) {
 						item.hidden = false;
 					});
+
 					return;
 				}
 
@@ -97,22 +33,59 @@
 					item.hidden = false;
 				});
 			},
+			clear: function (elem) {
+				elem.list.completed.forEach(function (item) {
+					item.remove();
+					elem.store.remove(item.data);
+				});
+			},
+			create: function (elem, e) {
+				var item = new TodoItem();
+				item.text = e.detail;
+				elem.list.appendChild(item);
+				elem.store.save(item.data);
+			},
+			completed: function (elem, e) {
+				elem.toggle.selected = !elem.list.active.length;
+				elem.footer.count = elem.list.active.length;
+				elem.store.save(e.target.data);
+			},
+			destroy: function (elem, e) {
+				elem.store.remove(e.target.data);
+			},
 			toggle: function (elem, e) {
 				elem.list.items.forEach(function (item) {
-					item.completed = e.detail ? true : undefined;
+					item.completed = e.detail;
 				});
-
-				elem.dispatchEvent(new CustomEvent('filter', {
-					bubbles: true
-				}));
 			}
 		},
 		properties: {
+			count: {
+				deps: [
+					'completed li[is="todo-item"]',
+					'length ul[is="todo-list"]'
+				],
+				notify: true,
+				get: function () {
+					return this.list.active.length;
+				}
+			},
 			filter: {
-				attr: true
+				deps: ['count']
 			},
 			storageId: {
-				attr: true
+				attr: true,
+				set: function (value) {
+					var that = this;
+					skate.ready(function () {
+						that.store = document.getElementById(value);
+						that.store.getAll().forEach(function (data) {
+							var todoItem = new TodoItem();
+							todoItem.data = data;
+							that.list.appendChild(todoItem);
+						});
+					});
+				}
 			}
 		},
 		prototype: {
