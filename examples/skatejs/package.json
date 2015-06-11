@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "skatejs": "skatejs/skatejs#438a5013b12cb6414369ee45c695b1dac63a8a31",
+    "skatejs": "skatejs/skatejs#fd4698ba9002b57863aef72626175d975848c3e0",
     "todomvc-app-css": "^2.0.0",
     "todomvc-common": "^1.0.0"
   }
