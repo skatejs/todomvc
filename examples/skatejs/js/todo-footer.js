@@ -1,20 +1,12 @@
 (function (exports, skate) {
 	'use strict';
 
-	function parseHref (elem) {
-		return (elem.hash || '').replace('#/', '');
-	}
-
 	exports.TodoFooter = skate('todo-footer', {
 		events: {
-			'click .filters a': function (elem, e, target) {
-				elem.filter = parseHref(target);
+			'click .filters a': function (e) {
+				this.filter = (e.delegateTarget.hash || '').replace('#/', '');
 			},
-			'click .clear-completed': function (elem) {
-				elem.dispatchEvent(new CustomEvent('clear', {
-					bubbles: true
-				}));
-			}
+			'click .clear-completed': skate.emit('clear')
 		},
 		properties: {
 			count: {
@@ -33,7 +25,6 @@
 			},
 			filter: {
 				attr: true,
-				notify: true,
 				set: function (value) {
 					Array.prototype.slice
 						.call(this.querySelectorAll('.filters a'))
@@ -51,8 +42,8 @@
 				}
 			}
 		},
-		template: function (element) {
-			element.innerHTML = '' +
+		template: function () {
+			this.innerHTML = '' +
 				'<footer class="footer">' +
 				'  <span class="todo-count"><strong>0</strong> item left</span>' +
 				'  <ul class="filters">' +
@@ -63,7 +54,9 @@
 				'  <button class="clear-completed">Clear completed</button>' +
 				'</footer>';
 		},
-		attached: function (elem) {
+		attached: function () {
+			var that = this;
+
 			/**
 			 * Super basic routing on initialisation.
 			 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
@@ -71,7 +64,7 @@
 			 */
 			skate.ready(function () {
 				var filter = window.location.hash.split('#/')[1];
-				elem.filter = filter;
+				that.filter = filter;
 			});
 		}
 	});

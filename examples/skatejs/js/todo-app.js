@@ -3,75 +3,78 @@
 
 	exports.TodoApp = skate('todo-app', {
 		events: {
-			'skate-property-count': function (elem) {
-				var listLength = elem.list.length;
-				elem.footer.count = elem.list.active.length;
-				elem.footer.hidden = !listLength;
-				elem.toggle.hidden = !listLength;
-			},
-			'skate-property-completed': function (elem) {
-				elem.toggle.selected = elem.list.length === elem.list.completed.length;
-			},
-			'skate-property-filter': function (elem) {
-				var type = elem.footer.filter;
-				var list = elem.list;
-				var items = list.items;
-
-				if (type && list[type]) {
-					items.forEach(function (item) {
-						item.hidden = true;
-					});
-
-					list[type].forEach(function (item) {
-						item.hidden = false;
-					});
-
-					return;
-				}
-
-				items.forEach(function (item) {
-					item.hidden = false;
-				});
-			},
-			clear: function (elem) {
-				elem.list.completed.forEach(function (item) {
+			clear: function () {
+				var that = this;
+				this.list.completed.forEach(function (item) {
 					item.remove();
-					elem.store.remove(item.data);
+					that.store.remove(item.data);
 				});
 			},
-			create: function (elem, e) {
+			create: function (e) {
 				var item = new TodoItem();
 				item.text = e.detail;
-				elem.list.appendChild(item);
-				elem.store.save(item.data);
+				this.list.appendChild(item);
+				this.store.save(item.data);
 			},
-			completed: function (elem, e) {
-				elem.toggle.selected = !elem.list.active.length;
-				elem.footer.count = elem.list.active.length;
-				elem.store.save(e.target.data);
+			completed: function (e) {
+				this.toggle.selected = !this.list.active.length;
+				this.footer.count = this.list.active.length;
+				this.store.save(e.target.data);
 			},
-			destroy: function (elem, e) {
-				elem.store.remove(e.target.data);
+			destroy: function (e) {
+				this.store.remove(e.target.data);
 			},
-			toggle: function (elem, e) {
-				elem.list.items.forEach(function (item) {
+			toggle: function (e) {
+				this.list.items.forEach(function (item) {
 					item.completed = e.detail;
 				});
 			}
 		},
 		properties: {
+			completed: {
+				set: function () {
+					this.toggle.selected = this.list.length === this.list.completed.length;
+				}
+			},
 			count: {
 				deps: [
-					'completed li[is="todo-item"]',
-					'length ul[is="todo-list"]'
+					'list.completed',
+					'list.length'
 				],
-				notify: true,
 				get: function () {
 					return this.list.active.length;
+				},
+				set: function () {
+					this.footer.count = this.count;
+					this.footer.hidden = this.toggle.hidden = !this.list.length;
 				}
 			},
 			filter: {
-				deps: ['count']
+				deps: [
+					'count',
+					'footer.filter'
+				],
+				set: function () {
+					var type = this.footer.filter;
+					var list = this.list;
+					var items = list.items;
+
+					if (type && list[type]) {
+						items.forEach(function (item) {
+							item.hidden = true;
+						});
+
+						list[type].forEach(function (item) {
+							item.hidden = false;
+						});
+
+						return;
+					}
+
+					items.forEach(function (item) {
+						item.hidden = false;
+					});
+				}
 			},
 			storageId: {
 				attr: true,
@@ -99,8 +102,8 @@
 				return this.querySelector('todo-toggle');
 			}
 		},
-		template: function (elem) {
-			elem.innerHTML = '' +
+		template: function () {
+			this.innerHTML = '' +
 				'<section class="todoapp">' +
 				'  <header class="header">' +
 				'    <h1>todos</h1>' +

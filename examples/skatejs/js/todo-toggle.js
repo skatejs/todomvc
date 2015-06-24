@@ -3,11 +3,10 @@
 
 	exports.TodoToggle = skate('todo-toggle', {
 		events: {
-			'change input[type="checkbox"]': function (elem, e) {
-				elem.dispatchEvent(new CustomEvent('toggle', {
-					bubbles: true,
+			'change input[type="checkbox"]': function (e) {
+				skate.emit(this, 'toggle', {
 					detail: !!e.target.checked
-				}));
+				});
 			}
 		},
 		properties: {
@@ -26,8 +25,8 @@
 				}
 			}
 		},
-		template: function (elem) {
-			elem.innerHTML = `
+		template: function () {
+			this.innerHTML = `
         <input class="toggle-all" type="checkbox">
         <label for="toggle-all">Mark all as complete</label>
       `;

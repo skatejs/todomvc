@@ -7,33 +7,29 @@
 	exports.TodoItem = skate('todo-item', {
 		extends: 'li',
 		events: {
-			'change .toggle': function (elem, e, target) {
-				elem.completed = target.checked ? true : undefined;
+			'change .toggle': function (e) {
+				this.completed = e.delegateTarget.checked;
 			},
-			'click .destroy': function (elem) {
-				elem.dispatchEvent(new CustomEvent('destroy', {
-					bubbles: true
-				}));
-			},
-			'dblclick label': function (elem) {
-				var edit = elem.querySelector('.edit');
-				edit.value = elem.text;
-				elem.classList.add('editing');
+			'click .destroy': skate.emit('destroy'),
+			'dblclick label': function () {
+				var edit = this.querySelector('.edit');
+				this.value = this.text;
+				this.classList.add('editing');
 				edit.focus();
 			},
-			'blur .edit': function (elem, e, target) {
-				elem.text = target.value;
-				elem.classList.remove('editing');
+			'blur .edit': function (e) {
+				this.text = e.delegateTarget.value;
+				this.classList.remove('editing');
 			},
-			'keyup .edit': function (elem, e, target) {
+			'keyup .edit': function (e) {
 				if (e.keyCode === KEYCODE_ENTER) {
-					elem.text = target.value;
-					elem.classList.remove('editing');
+					this.text = e.delegateTarget.value;
+					this.classList.remove('editing');
 					return;
 				}
 
 				if (e.keyCode === KEYCODE_ESCAPE) {
-					elem.querySelector('.edit').blur();
+					this.querySelector('.edit').blur();
 				}
 			}
 		},
@@ -50,10 +46,9 @@
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('completed');
 					this.querySelector('input[type="checkbox"]').checked = value;
-					this.dispatchEvent(new CustomEvent('completed', {
-						bubbles: true,
+					skate.emit(this, 'completed', {
 						detail: value
-					}));
+					});
 				}
 			},
 			editing: {
@@ -95,8 +90,8 @@
 				this.todoId = value.id;
 			}
 		},
-		template: function (elem) {
-			elem.innerHTML =
+		template: function () {
+			this.innerHTML =
 				'<div class="view">' +
 				'  <input class="toggle" type="checkbox">' +
 				'  <label>Taste JavaScript</label>' +

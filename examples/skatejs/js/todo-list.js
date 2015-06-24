@@ -1,13 +1,14 @@
 (function (exports, skate) {
 	'use strict';
 
-	var nodeProto = window.Node.prototype;
-
 	exports.TodoList = skate('todo-list', {
 		extends: 'ul',
 		events: {
-			destroy: function (elem, e) {
-				elem.removeChild(e.target);
+			completed: function () {
+				this.length = this.length;
+			},
+			destroy: function (e) {
+				this.removeChild(e.target);
 			}
 		},
 		properties: {
@@ -34,7 +35,6 @@
 				}
 			},
 			length: {
-				notify: true,
 				type: Number,
 				value: 0,
 				get: function () {
@@ -42,9 +42,10 @@
 				}
 			}
 		},
-		created: function (elem) {
-			skate.watch(elem, function () {
-				skate.notify(elem, 'length');
+		created: function () {
+			var that = this;
+			skate.watch(this, function () {
+				that.length = that.length;
 			});
 		}
 	});
