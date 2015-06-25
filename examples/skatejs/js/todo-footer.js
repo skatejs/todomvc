@@ -55,18 +55,13 @@
 				'  <button class="clear-completed">Clear completed</button>' +
 				'</footer>';
 		},
-		attached: function () {
-			var that = this;
-
+		attached: skate.ready(function () {
 			/**
 			 * Super basic routing on initialisation.
 			 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
 			 * 	- Skate has no opinions about what type of routing solution to use.
 			 */
-			skate.ready(function () {
-				var filter = window.location.hash.split('#/')[1];
-				that.filter = filter;
-			});
-		}
+			this.filter = window.location.hash.split('#/')[1];
+		})
 	});
 })(window, window.skate);
