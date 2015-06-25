@@ -4,10 +4,7 @@
 	exports.TodoList = skate('todo-list', {
 		extends: 'ul',
 		events: {
-			completed: function () {
-				this.length = this.length;
-			},
-			destroy: function (e) {
+			'destroy > li': function (e) {
 				this.removeChild(e.target);
 			}
 		},
@@ -29,24 +26,12 @@
 				}
 			},
 			items: {
-				deps: ['length'],
+				deps: ['completed li'],
 				get: function () {
 					return Array.prototype.slice.call(this.children);
 				}
-			},
-			length: {
-				type: Number,
-				value: 0,
-				get: function () {
-					return this.children.length;
-				}
 			}
 		},
-		created: function () {
-			var that = this;
-			skate.watch(this, function () {
-				that.length = that.length;
-			});
-		}
+		created: skate.watch(skate.notify('items'))
 	});
 })(window, window.skate);

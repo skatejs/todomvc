@@ -13,7 +13,7 @@
 				attr: true,
 				type: Number,
 				set: function (value) {
-					this.querySelector('.todo-count strong').textContent = value || 0;
+					this.querySelector('.todo-count strong').textContent = value;
 				}
 			},
 			hidden: {
@@ -21,7 +21,8 @@
 				type: Boolean,
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('hidden');
-				}
+				},
+				value: true
 			},
 			filter: {
 				attr: true,

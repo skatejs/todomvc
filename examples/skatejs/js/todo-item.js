@@ -34,7 +34,8 @@
 			}
 		},
 		properties: {
-			todoId: {
+			id: {
+				attr: true,
 				value: function () {
 					return new Date().getTime();
 				}
@@ -42,13 +43,9 @@
 			completed: {
 				attr: true,
 				type: Boolean,
-				notify: true,
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('completed');
 					this.querySelector('input[type="checkbox"]').checked = value;
-					skate.emit(this, 'completed', {
-						detail: value
-					});
 				}
 			},
 			editing: {
@@ -75,7 +72,7 @@
 		prototype: {
 			get data() {
 				return {
-					id: this.todoId,
+					id: this.id,
 					text: this.text,
 					completed: !!this.completed
 				};
@@ -87,7 +84,7 @@
 
 				this.completed = value.completed || undefined;
 				this.text = value.text;
-				this.todoId = value.id;
+				this.id = value.id;
 			}
 		},
 		template: function () {

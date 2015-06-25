@@ -1,70 +1,56 @@
-(function (exports, skate, TodoItem) {
+(function (exports, skate, todoItem) {
 	'use strict';
 
 	exports.TodoApp = skate('todo-app', {
 		events: {
-			clear: function () {
+			'clear *': function () {
 				var that = this;
 				this.list.completed.forEach(function (item) {
 					item.remove();
 					that.store.remove(item.data);
 				});
 			},
-			create: function (e) {
-				var item = new TodoItem();
-				item.text = e.detail;
+			'create *': function (e) {
+				var item = todoItem({
+					text: e.detail
+				});
 				this.list.appendChild(item);
 				this.store.save(item.data);
 			},
-			completed: function (e) {
-				this.toggle.selected = !this.list.active.length;
-				this.footer.count = this.list.active.length;
-				this.store.save(e.target.data);
-			},
-			destroy: function (e) {
+			'destroy *': function (e) {
 				this.store.remove(e.target.data);
 			},
-			toggle: function (e) {
+			'toggle *': function (e) {
 				this.list.items.forEach(function (item) {
 					item.completed = e.detail;
 				});
+			},
+			'skate.property.completed li': function (e) {
+				this.store.save(e.target.data);
+			},
+			'skate.property.items ul': function () {
+				this.toggle.selected = !this.list.active.length;
+				this.footer.count = this.list.active.length;
+				this.footer.hidden = this.toggle.hidden = !this.list.items.length;
 			}
 		},
 		properties: {
-			completed: {
-				set: function () {
-					this.toggle.selected = this.list.length === this.list.completed.length;
-				}
-			},
-			count: {
-				deps: [
-					'list.completed',
-					'list.length'
-				],
-				get: function () {
-					return this.list.active.length;
-				},
-				set: function () {
-					this.footer.count = this.count;
-					this.footer.hidden = this.toggle.hidden = !this.list.length;
-				}
-			},
 			filter: {
-				deps: [
-					'count',
-					'footer.filter'
-				],
-				set: function () {
-					var type = this.footer.filter;
+				attr: true,
+				deps: ['items ul', 'filter todo-footer'],
+				get: function () {
+					return this.footer.filter;
+				},
+				set: function (value) {
 					var list = this.list;
 					var items = list.items;
 
-					if (type && list[type]) {
+					if (value && list[value]) {
 						items.forEach(function (item) {
 							item.hidden = true;
 						});
 
-						list[type].forEach(function (item) {
+						list[value].forEach(function (item) {
 							item.hidden = false;
 						});
 
@@ -83,9 +69,9 @@
 					skate.ready(function () {
 						that.store = document.getElementById(value);
 						that.store.getAll().forEach(function (data) {
-							var todoItem = new TodoItem();
-							todoItem.data = data;
-							that.list.appendChild(todoItem);
+							that.list.appendChild(todoItem({
+								data: data
+							}));
 						});
 					});
 				}
