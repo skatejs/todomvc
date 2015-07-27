@@ -7,21 +7,10 @@
 		properties: {
 			keyPrefix: {
 				attr: true,
-				value: 'todo-skatejs'
+				init: 'todo-skatejs'
 			}
 		},
 		prototype: {
-			find: function (query) {
-				// 1. get all
-				// 2. filter by query
-				this.getAll()
-					.filter(function (item) {
-						Object.keys(query)
-							.every(function (key) {
-								return item[key] && item[key] === query[key];
-							});
-					});
-			},
 			getKey: function (id) {
 				return this.keyPrefix + '-' + id;
 			},
@@ -46,9 +35,6 @@
 			},
 			remove: function (data) {
 				store.removeItem(this.getKey(data.id));
-			},
-			removeAll: function () {
-				store.clear();
 			}
 		}
 	});

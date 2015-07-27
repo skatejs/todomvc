@@ -6,11 +6,13 @@
 			'click .filters a': function (e) {
 				this.filter = (e.delegateTarget.hash || '').replace('#/', '');
 			},
-			'click .clear-completed': skate.emit('clear')
+			'click .clear-completed': function () {
+				skate.emit(this, 'clear');
+			}
 		},
 		properties: {
 			count: {
-				attr: true,
+				init: 0,
 				type: Number,
 				set: function (value) {
 					this.querySelector('.todo-count strong').textContent = value;
@@ -18,19 +20,21 @@
 			},
 			hidden: {
 				attr: true,
+				init: true,
 				type: Boolean,
 				set: function (value) {
-					this.classList[value ? 'add' : 'remove']('hidden');
-				},
-				value: true
+					this.className = value ? 'hidden' : '';
+				}
 			},
 			filter: {
-				attr: true,
 				set: function (value) {
+					skate.emit(this, 'filter', {
+						detail: value
+					});
 					Array.prototype.slice
 						.call(this.querySelectorAll('.filters a'))
 						.map(function (anchor) {
-							anchor.classList.remove('selected');
+							anchor.className = '';
 							return anchor;
 						})
 						.filter(function (anchor) {
@@ -38,30 +42,26 @@
 							return type === value;
 						})
 						.forEach(function (anchor) {
-							anchor.classList.add('selected');
+							anchor.className = 'selected';
 						});
 				}
 			}
 		},
-		template: function () {
-			this.innerHTML = '' +
-				'<footer class="footer">' +
-				'  <span class="todo-count"><strong>0</strong> item left</span>' +
-				'  <ul class="filters">' +
-				'    <li><a class="selected" href="#/">All</a></li>' +
-				'    <li><a href="#/active">Active</a></li>' +
-				'    <li><a href="#/completed">Completed</a></li>' +
-				'  </ul>' +
-				'  <button class="clear-completed">Clear completed</button>' +
-				'</footer>';
-		},
-		attached: skate.ready(function () {
-			/**
-			 * Super basic routing on initialisation.
-			 * 	- This is a very simple example that just calls the 'filter' event based on the windows hash
-			 * 	- Skate has no opinions about what type of routing solution to use.
-			 */
+		template: todomvc.template(
+			'<footer class="footer">',
+				'<span class="todo-count"><strong>0</strong> item left</span>',
+				'<ul class="filters">',
+					'<li><a class="selected" href="#/">All</a></li>',
+					'<li><a href="#/active">Active</a></li>',
+					'<li><a href="#/completed">Completed</a></li>',
+				'</ul>',
+				'<button class="clear-completed">Clear completed</button>',
+			'</footer>'
+		),
+		attached: function () {
+			// Super basic routing on initialisation. Skate has no opinions about what
+			// type of routing solution to use.
 			this.filter = window.location.hash.split('#/')[1];
-		})
+		}
 	});
 })(window, window.skate);

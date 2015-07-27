@@ -25,11 +25,9 @@
 				}
 			}
 		},
-		template: function () {
-			this.innerHTML = `
-        <input class="toggle-all" type="checkbox">
-        <label for="toggle-all">Mark all as complete</label>
-      `;
-		}
+		template: todomvc.template(
+      '<input class="toggle-all" type="checkbox">',
+      '<label for="toggle-all">Mark all as complete</label>'
+		)
 	});
 })(window, window.skate);

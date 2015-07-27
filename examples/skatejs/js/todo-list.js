@@ -4,34 +4,24 @@
 	exports.TodoList = skate('todo-list', {
 		extends: 'ul',
 		events: {
-			'destroy > li': function (e) {
+			destroy: function (e) {
 				this.removeChild(e.target);
 			}
 		},
-		properties: {
-			active: {
-				deps: ['items'],
-				get: function () {
-					return this.items.filter(function (todo) {
-						return !todo.completed;
-					});
-				}
+		prototype: {
+			get active () {
+				return this.items.filter(function (item) {
+					return !item.completed;
+				});
 			},
-			completed: {
-				deps: ['items'],
-				get: function () {
-					return this.items.filter(function (todo) {
-						return todo.completed;
-					});
-				}
+			get completed () {
+				return this.items.filter(function (item) {
+					return item.completed;
+				});
 			},
-			items: {
-				deps: ['completed li'],
-				get: function () {
-					return Array.prototype.slice.call(this.children);
-				}
+			get items () {
+				return Array.prototype.slice.call(this.querySelectorAll('[is=todo-item]'));
 			}
-		},
-		created: skate.watch(skate.notify('items'))
+		}
 	});
 })(window, window.skate);

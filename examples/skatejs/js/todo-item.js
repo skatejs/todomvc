@@ -10,7 +10,9 @@
 			'change .toggle': function (e) {
 				this.completed = e.delegateTarget.checked;
 			},
-			'click .destroy': skate.emit('destroy'),
+			'click .destroy': function () {
+				skate.emit(this, 'destroy', { detail: this });
+			},
 			'dblclick label': function () {
 				var edit = this.querySelector('.edit');
 				this.value = this.text;
@@ -36,14 +38,16 @@
 		properties: {
 			id: {
 				attr: true,
-				value: function () {
+				init: function () {
 					return new Date().getTime();
 				}
 			},
 			completed: {
 				attr: true,
 				type: Boolean,
+				init: false,
 				set: function (value) {
+					skate.emit(this, 'completed', { detail: this });
 					this.classList[value ? 'add' : 'remove']('completed');
 					this.querySelector('input[type="checkbox"]').checked = value;
 				}
@@ -51,6 +55,7 @@
 			editing: {
 				attr: true,
 				type: Boolean,
+				init: false,
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('editing');
 				}
@@ -58,26 +63,28 @@
 			hidden: {
 				attr: true,
 				type: Boolean,
+				init: false,
 				set: function (value) {
 					this.classList[value ? 'add' : 'remove']('hidden');
 				}
 			},
 			text: {
 				type: String,
+				init: 'New todo',
 				set: function (value) {
 					this.querySelector('label').textContent = value.trim();
 				}
 			}
 		},
 		prototype: {
-			get data() {
+			get data () {
 				return {
 					id: this.id,
 					text: this.text,
 					completed: !!this.completed
 				};
 			},
-			set data(value) {
+			set data (value) {
 				if (!value) {
 					return;
 				}
@@ -87,14 +94,13 @@
 				this.id = value.id;
 			}
 		},
-		template: function () {
-			this.innerHTML =
-				'<div class="view">' +
-				'  <input class="toggle" type="checkbox">' +
-				'  <label>Taste JavaScript</label>' +
-				'  <button class="destroy"></button>' +
-				'</div>' +
-				'<input class="edit" value="Create a TodoMVC template">';
-		}
+		template: todomvc.template(
+			'<div class="view">',
+				'<input class="toggle" type="checkbox">',
+				'<label>Taste JavaScript</label>',
+				'<button class="destroy"></button>',
+			'</div>',
+			'<input class="edit" value="Create a TodoMVC template">'
+		)
 	});
 })(window, window.skate);
