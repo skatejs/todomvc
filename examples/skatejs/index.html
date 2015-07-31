@@ -15,6 +15,13 @@
 			<p>Created by <a href="http://twitter.com/alexandereardon">Alex Reardon</a> and <a href="http://twitter.com/treshugart">Trey Shugart</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
+		<!-- Ordering of components matters because if one component expects to be
+		able to use another component as one of its descendants, then the descendant
+		component must be upgraded by the time the host component goes to use it.
+		The only way to ensure this happens as expected is to load definitions
+		in the proper order. A better way to do this would be to simply use a module
+		system, split your definitions into separate modules and properly declare
+		your dependencies. -->
 		<script src="node_modules/todomvc-common/base.js"></script>
 		<script src="node_modules/skatejs/dist/skatejs.js"></script>
 		<script src="js/util.js"></script>

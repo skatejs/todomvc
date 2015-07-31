@@ -1,3 +1,8 @@
+// import './todo-footer';
+// import './todo-list';
+// import skate from 'skatejs';
+// import todoItem from './todo-item';
+
 (function (exports, skate, todoItem) {
 	'use strict';
 
