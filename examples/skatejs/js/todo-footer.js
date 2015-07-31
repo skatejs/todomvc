@@ -26,7 +26,7 @@
 				init: true,
 				type: Boolean,
 				set: function (value) {
-					this.className = value ? 'hidden' : '';
+					util.toggleClass(this, 'hidden', value);
 				}
 			},
 			filter: {

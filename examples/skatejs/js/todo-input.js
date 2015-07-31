@@ -25,7 +25,7 @@
 			}
 		},
 		created: function () {
-			this.classList.add('new-todo');
+			this.className = 'new-todo';
 			this.setAttribute('placeholder', 'What needs to be done?');
 			this.setAttribute('autofocus', '');
 		}

@@ -1,7 +1,7 @@
 // import skate from 'skatejs';
-// import todoMvc from './util';
+// import util from './util';
 
-(function (exports, skate, todoMvc) {
+(function (exports, skate, util) {
 	'use strict';
 
 	var KEYCODE_ENTER = 13;
@@ -19,17 +19,17 @@
 			'dblclick label': function () {
 				var edit = this.querySelector('.edit');
 				this.value = this.text;
-				this.classList.add('editing');
+				util.addClass(this, 'editing');
 				edit.focus();
 			},
 			'blur .edit': function (e) {
 				this.text = e.delegateTarget.value;
-				this.classList.remove('editing');
+				util.removeClass(this, 'editing');
 			},
 			'keyup .edit': function (e) {
 				if (e.keyCode === KEYCODE_ENTER) {
 					this.text = e.delegateTarget.value;
-					this.classList.remove('editing');
+					util.removeClass(this, 'editing');
 					return;
 				}
 
@@ -51,7 +51,7 @@
 				init: false,
 				set: function (value) {
 					skate.emit(this, 'completed', { detail: this });
-					this.classList[value ? 'add' : 'remove']('completed');
+					util.toggleClass(this, 'completed', value);
 					this.querySelector('input[type="checkbox"]').checked = value;
 				}
 			},
@@ -60,7 +60,7 @@
 				type: Boolean,
 				init: false,
 				set: function (value) {
-					this.classList[value ? 'add' : 'remove']('editing');
+					util.toggleClass(this, 'editing', value);
 				}
 			},
 			hidden: {
@@ -68,7 +68,7 @@
 				type: Boolean,
 				init: false,
 				set: function (value) {
-					this.classList[value ? 'add' : 'remove']('hidden');
+					util.toggleClass(this, 'hidden', value);
 				}
 			},
 			text: {
@@ -111,4 +111,4 @@
 			'<input class="edit" value="Create a TodoMVC template">'
 		)
 	});
-})(window, window.skate, window.todoMvc);
+})(window, window.skate, window.util);

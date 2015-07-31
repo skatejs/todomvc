@@ -24,7 +24,7 @@
 				attr: true,
 				type: Boolean,
 				set: function (value) {
-					this.classList[value ? 'add' : 'remove']('hidden');
+					util.toggleClass(this, 'hidden', value);
 				}
 			}
 		},
