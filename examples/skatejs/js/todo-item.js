@@ -1,4 +1,7 @@
-(function (exports, skate) {
+// import skate from 'skatejs';
+// import todoMvc from './util';
+
+(function (exports, skate, todoMvc) {
 	'use strict';
 
 	var KEYCODE_ENTER = 13;
@@ -94,7 +97,7 @@
 				this.id = value.id;
 			}
 		},
-		template: todomvc.template(
+		template: todoMvc.template(
 			'<div class="view">',
 				'<input class="toggle" type="checkbox">',
 				'<label>Taste JavaScript</label>',
@@ -103,4 +106,4 @@
 			'<input class="edit" value="Create a TodoMVC template">'
 		)
 	});
-})(window, window.skate);
+})(window, window.skate, window.todoMvc);

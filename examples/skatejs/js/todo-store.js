@@ -1,3 +1,5 @@
+// import skate from 'skatejs';
+
 (function (exports, skate) {
 	'use strict';
 

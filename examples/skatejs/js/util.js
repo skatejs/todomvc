@@ -3,7 +3,7 @@
 
 	var slice = Array.prototype.slice;
 
-	exports.todomvc = {
+	exports.todoMvc = {
 		template: function () {
 			var template = slice.call(arguments).join('');
 			return function () {

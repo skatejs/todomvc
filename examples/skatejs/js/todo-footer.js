@@ -1,4 +1,7 @@
-(function (exports, skate) {
+// import skate from 'skatejs';
+// import todoMvc from './util';
+
+(function (exports, skate, todoMvc) {
 	'use strict';
 
 	exports.TodoFooter = skate('todo-footer', {
@@ -47,7 +50,7 @@
 				}
 			}
 		},
-		template: todomvc.template(
+		template: todoMvc.template(
 			'<footer class="footer">',
 				'<span class="todo-count"><strong>0</strong> item left</span>',
 				'<ul class="filters">',
@@ -64,4 +67,4 @@
 			this.filter = window.location.hash.split('#/')[1];
 		}
 	});
-})(window, window.skate);
+})(window, window.skate, window.todoMvc);

@@ -1,4 +1,7 @@
-(function (exports, skate) {
+// import skate from 'skatejs';
+// import todoMvc from './util';
+
+(function (exports, skate, todoMvc) {
 	'use strict';
 
 	exports.TodoToggle = skate('todo-toggle', {
@@ -25,9 +28,9 @@
 				}
 			}
 		},
-		template: todomvc.template(
+		template: todoMvc.template(
       '<input class="toggle-all" type="checkbox">',
       '<label for="toggle-all">Mark all as complete</label>'
 		)
 	});
-})(window, window.skate);
+})(window, window.skate, window.todoMvc);
