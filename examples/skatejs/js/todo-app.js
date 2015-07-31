@@ -44,6 +44,9 @@
 				this.list.appendChild(item);
 				this.store.save(item.data);
 			},
+			edited: function (e) {
+				this.store.save(e.detail.data);
+			},
 			destroy: function (e) {
 				if (!e.detail.completed) {
 					this.footer.count--;

@@ -75,7 +75,12 @@
 				type: String,
 				init: 'New todo',
 				set: function (value) {
-					this.querySelector('label').textContent = value.trim();
+					value = value.trim();
+					this.querySelector('label').textContent = value;
+					this.querySelector('.edit').value = value;
+					skate.emit(this, 'edited', {
+						detail: this
+					});
 				}
 			}
 		},
