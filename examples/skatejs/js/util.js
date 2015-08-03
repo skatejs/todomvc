@@ -7,7 +7,7 @@
 		return (elem.className || '').split(' ');
 	}
 
-	exports.todoMvc = {
+	exports.util = {
 		addClass: function (elem, name) {
 			var names = classNames(elem);
 			if (names.indexOf(name) === -1) {

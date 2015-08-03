@@ -102,7 +102,7 @@
 				this.id = value.id;
 			}
 		},
-		template: todoMvc.template(
+		template: util.template(
 			'<div class="view">',
 				'<input class="toggle" type="checkbox">',
 				'<label>Taste JavaScript</label>',

@@ -2,9 +2,9 @@
 // import './todo-list';
 // import skate from 'skatejs';
 // import todoItem from './todo-item';
-// import todoMvc from './util';
+// import util from './util';
 
-(function (exports, skate, todoItem, todoMvc) {
+(function (exports, skate, todoItem, util) {
 	'use strict';
 
 	function filterItem (filter, item) {
@@ -98,7 +98,7 @@
 				return this.querySelector('todo-toggle');
 			}
 		},
-		template: todoMvc.template(
+		template: util.template(
 			'<section class="todoapp">',
 				'<header class="header">',
 					'<h1>todos</h1>',
@@ -112,4 +112,4 @@
 			'</section>'
 		)
 	});
-})(window, window.skate, window.TodoItem, window.todoMvc);
+})(window, window.skate, window.TodoItem, window.util);
