@@ -17,32 +17,32 @@
 			count: {
 				init: 0,
 				type: Number,
-				set: function (value) {
-					this.querySelector('.todo-count strong').textContent = value;
+				update: function (elem, data) {
+					elem.querySelector('.todo-count strong').textContent = data.newValue;
 				}
 			},
 			hidden: {
 				attr: true,
 				init: true,
 				type: Boolean,
-				set: function (value) {
-					util.toggleClass(this, 'hidden', value);
+				update: function (elem, data) {
+					util.toggleClass(elem, 'hidden', data.newValue);
 				}
 			},
 			filter: {
-				set: function (value) {
-					skate.emit(this, 'filter', {
-						detail: value
+				update: function (elem, data) {
+					skate.emit(elem, 'filter', {
+						detail: data.newValue
 					});
 					Array.prototype.slice
-						.call(this.querySelectorAll('.filters a'))
+						.call(elem.querySelectorAll('.filters a'))
 						.map(function (anchor) {
 							anchor.className = '';
 							return anchor;
 						})
 						.filter(function (anchor) {
 							var type = anchor.hash.split('#/')[1];
-							return type === value;
+							return type === data.newValue;
 						})
 						.forEach(function (anchor) {
 							anchor.className = 'selected';
@@ -50,7 +50,7 @@
 				}
 			}
 		},
-		template: util.template(
+		render: util.template(
 			'<footer class="footer">',
 				'<span class="todo-count"><strong>0</strong> item left</span>',
 				'<ul class="filters">',
@@ -61,10 +61,10 @@
 				'<button class="clear-completed">Clear completed</button>',
 			'</footer>'
 		),
-		attached: function () {
+		attached: function (elem) {
 			// Super basic routing on initialisation. Skate has no opinions about what
 			// type of routing solution to use.
-			this.filter = window.location.hash.split('#/')[1];
+			elem.filter = window.location.hash.split('#/')[1];
 		}
 	});
 })(window, window.skate, window.util);

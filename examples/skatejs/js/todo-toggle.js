@@ -16,19 +16,19 @@
 			selected: {
 				attr: true,
 				type: Boolean,
-				set: function (value) {
-					this.querySelector('input[type="checkbox"]').checked = value;
+				update: function (elem, data) {
+					elem.querySelector('input[type="checkbox"]').checked = data.newValue;
 				}
 			},
 			hidden: {
 				attr: true,
 				type: Boolean,
-				set: function (value) {
-					util.toggleClass(this, 'hidden', value);
+				update: function (elem, data) {
+					util.toggleClass(elem, 'hidden', data.newValue);
 				}
 			}
 		},
-		template: util.template(
+		render: util.template(
       '<input class="toggle-all" type="checkbox">',
       '<label for="toggle-all">Mark all as complete</label>'
 		)

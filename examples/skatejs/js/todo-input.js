@@ -24,10 +24,10 @@
 				}
 			}
 		},
-		created: function () {
-			this.className = 'new-todo';
-			this.setAttribute('placeholder', 'What needs to be done?');
-			this.setAttribute('autofocus', '');
+		created: function (elem) {
+			elem.className = 'new-todo';
+			elem.setAttribute('placeholder', 'What needs to be done?');
+			elem.setAttribute('autofocus', '');
 		}
 	});
 })(window, window.skate);

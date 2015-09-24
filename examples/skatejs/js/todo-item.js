@@ -49,37 +49,37 @@
 				attr: true,
 				type: Boolean,
 				init: false,
-				set: function (value) {
-					skate.emit(this, 'completed', { detail: this });
-					util.toggleClass(this, 'completed', value);
-					this.querySelector('input[type="checkbox"]').checked = value;
+				update: function (elem, data) {
+					skate.emit(elem, 'completed', { detail: elem });
+					util.toggleClass(elem, 'completed', data.newValue);
+					elem.querySelector('input[type="checkbox"]').checked = data.newValue;
 				}
 			},
 			editing: {
 				attr: true,
 				type: Boolean,
 				init: false,
-				set: function (value) {
-					util.toggleClass(this, 'editing', value);
+				update: function (elem, data) {
+					util.toggleClass(elem, 'editing', data.newValue);
 				}
 			},
 			hidden: {
 				attr: true,
 				type: Boolean,
 				init: false,
-				set: function (value) {
-					util.toggleClass(this, 'hidden', value);
+				update: function (elem, data) {
+					util.toggleClass(elem, 'hidden', data.newValue);
 				}
 			},
 			text: {
 				type: String,
 				init: 'New todo',
-				set: function (value) {
-					value = value.trim();
-					this.querySelector('label').textContent = value;
-					this.querySelector('.edit').value = value;
-					skate.emit(this, 'edited', {
-						detail: this
+				update: function (elem, data) {
+					var value = data.newValue.trim();
+					elem.querySelector('label').textContent = value;
+					elem.querySelector('.edit').value = value;
+					skate.emit(elem, 'edited', {
+						detail: elem
 					});
 				}
 			}
@@ -102,7 +102,7 @@
 				this.id = value.id;
 			}
 		},
-		template: util.template(
+		render: util.template(
 			'<div class="view">',
 				'<input class="toggle" type="checkbox">',
 				'<label>Taste JavaScript</label>',

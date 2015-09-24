@@ -14,13 +14,12 @@
 	exports.TodoApp = skate('todo-app', {
 		events: {
 			clear: function () {
-				var that = this;
 				this.footer.hidden = this.footer.count === 0;
 				this.toggle.selected = false;
 				this.list.completed.forEach(function (item) {
 					item.remove();
-					that.store.remove(item.data);
-				});
+					this.store.remove(item.data);
+				}.bind(this));
 			},
 			completed: function (e) {
 				if (e.detail.completed) {
@@ -67,23 +66,22 @@
 		properties: {
 			storageId: {
 				attr: true,
-				set: function (value) {
-					var that = this;
-					this.store = document.getElementById(value);
-					this.list.innerHTML = '';
-					this.store.getAll().forEach(function (data) {
+				update: function (elem, data) {
+					elem.store = document.getElementById(data.newValue);
+					elem.list.innerHTML = '';
+					elem.store.getAll().forEach(function (data) {
 						var item = todoItem(data);
 
-						that.list.appendChild(item);
+						elem.list.appendChild(item);
 						filterItem(that.footer.filter, item);
 
 						if (!item.completed) {
-							that.footer.count++;
+							elem.footer.count++;
 						}
 					});
 
-					this.footer.hidden = this.list.items.length === 0;
-					this.toggle.selected = this.list.items.length > 0 && this.list.items.length === this.list.completed.length;
+					elem.footer.hidden = elem.list.items.length === 0;
+					elem.toggle.selected = elem.list.items.length > 0 && elem.list.items.length === elem.list.completed.length;
 				}
 			}
 		},
@@ -98,7 +96,7 @@
 				return this.querySelector('todo-toggle');
 			}
 		},
-		template: util.template(
+		render: util.template(
 			'<section class="todoapp">',
 				'<header class="header">',
 					'<h1>todos</h1>',
