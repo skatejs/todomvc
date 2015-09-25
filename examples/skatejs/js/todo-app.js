@@ -73,7 +73,7 @@
 						var item = todoItem(data);
 
 						elem.list.appendChild(item);
-						filterItem(that.footer.filter, item);
+						filterItem(elem.footer.filter, item);
 
 						if (!item.completed) {
 							elem.footer.count++;

@@ -1,35 +1,13 @@
-# Framework Name • [TodoMVC](http://todomvc.com)
+# Skate.js TodoMVC example
 
-> Official description of the framework (from its website)
+> Skate is a web component library that provides an API to bind behaviour to DOM elements. It's based on the W3C specification for Custom Elements.
 
+> _[Skate - skate.js.org](http://skate.js.org)_
 
-## Resources
+## Learning Skate
 
-- [Website]()
-- [Documentation]()
-- [Used by]()
-- [Blog]()
-- [FAQ]()
-
-### Articles
-
-- [Interesting article]()
-
-### Support
-
-- [StackOverflow](http://stackoverflow.com/questions/tagged/__)
-- [Google Groups]()
-- [Twitter](http://twitter.com/__)
-- [Google+]()
-
-*Let us [know](https://github.com/tastejs/todomvc/issues) if you discover anything worth sharing.*
-
-
-## Implementation
-
-How was the app created? Anything worth sharing about the process of creating the app? Any spec violations?
-
+The [Skate website](http://skate.js.org) is a great resource for getting started.
 
 ## Credit
 
-Created by [Your Name](http://your-website.com)
+Created by [Trey Shugart](http://github.com/treshugart) and [Alex Reardon](https://github.com/alexreardon)
