@@ -16,6 +16,7 @@
 			clear: function () {
 				this.footer.hidden = this.footer.count === 0;
 				this.toggle.selected = false;
+				this.toggle.hidden = true;
 				this.list.completed.forEach(function (item) {
 					item.remove();
 					this.store.remove(item.data);
@@ -42,6 +43,7 @@
 				this.footer.hidden = false;
 				this.list.appendChild(item);
 				this.store.save(item.data);
+				this.toggle.hidden = false;
 			},
 			edited: function (e) {
 				this.store.save(e.detail.data);
@@ -51,7 +53,7 @@
 					this.footer.count--;
 				}
 
-				this.footer.hidden = this.footer.count === 0;
+				this.footer.hidden = this.toggle.hidden = this.footer.count === 0;
 				this.store.remove(e.target.data);
 			},
 			filter: function () {
@@ -79,7 +81,7 @@
 						}
 					});
 
-					elem.footer.hidden = elem.list.items.length === 0;
+					elem.footer.hidden = elem.toggle.hidden = elem.list.items.length === 0;
 					elem.toggle.selected = elem.list.items.length > 0 && elem.list.items.length === elem.list.completed.length;
 				}
 			})

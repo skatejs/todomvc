@@ -19,7 +19,7 @@
 				}
 			}),
 			hidden: skate.property.boolean({
-				update: function (elem, data) {
+				set: function (elem, data) {
 					util.toggleClass(elem, 'hidden', data.newValue);
 				}
 			})
