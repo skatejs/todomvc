@@ -7,10 +7,9 @@
 
 	exports.TodoStore = skate('todo-store', {
 		properties: {
-			keyPrefix: {
-				attr: true,
-				init: 'todo-skatejs'
-			}
+			keyPrefix: skate.property.string({
+				default: 'todo-skatejs'
+			})
 		},
 		prototype: {
 			getKey: function (id) {

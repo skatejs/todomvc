@@ -64,16 +64,15 @@
 			}
 		},
 		properties: {
-			storageId: {
-				attr: true,
-				update: function (elem, data) {
+			storageId: skate.property.string({
+				set: function (elem, data) {
 					elem.store = document.getElementById(data.newValue);
 					elem.list.innerHTML = '';
 					elem.store.getAll().forEach(function (data) {
 						var item = todoItem(data);
 
 						elem.list.appendChild(item);
-						filterItem(that.footer.filter, item);
+						filterItem(elem.footer.filter, item);
 
 						if (!item.completed) {
 							elem.footer.count++;
@@ -83,7 +82,7 @@
 					elem.footer.hidden = elem.list.items.length === 0;
 					elem.toggle.selected = elem.list.items.length > 0 && elem.list.items.length === elem.list.completed.length;
 				}
-			}
+			})
 		},
 		prototype: {
 			get footer () {

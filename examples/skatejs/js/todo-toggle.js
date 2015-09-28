@@ -13,20 +13,16 @@
 			}
 		},
 		properties: {
-			selected: {
-				attr: true,
-				type: Boolean,
-				update: function (elem, data) {
+			selected: skate.property.boolean({
+				set: function (elem, data) {
 					elem.querySelector('input[type="checkbox"]').checked = data.newValue;
 				}
-			},
-			hidden: {
-				attr: true,
-				type: Boolean,
+			}),
+			hidden: skate.property.boolean({
 				update: function (elem, data) {
 					util.toggleClass(elem, 'hidden', data.newValue);
 				}
-			}
+			})
 		},
 		render: util.template(
       '<input class="toggle-all" type="checkbox">',

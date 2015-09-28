@@ -14,23 +14,18 @@
 			}
 		},
 		properties: {
-			count: {
-				init: 0,
-				type: Number,
-				update: function (elem, data) {
+			count: skate.property.number({
+				set: function (elem, data) {
 					elem.querySelector('.todo-count strong').textContent = data.newValue;
 				}
-			},
-			hidden: {
-				attr: true,
-				init: true,
-				type: Boolean,
-				update: function (elem, data) {
+			}),
+			hidden: skate.property.boolean({
+				set: function (elem, data) {
 					util.toggleClass(elem, 'hidden', data.newValue);
 				}
-			},
-			filter: {
-				update: function (elem, data) {
+			}),
+			filter: skate.property.string({
+				set: function (elem, data) {
 					skate.emit(elem, 'filter', {
 						detail: data.newValue
 					});
@@ -48,7 +43,7 @@
 							anchor.className = 'selected';
 						});
 				}
-			}
+			})
 		},
 		render: util.template(
 			'<footer class="footer">',

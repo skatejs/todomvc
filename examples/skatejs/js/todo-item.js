@@ -39,42 +39,31 @@
 			}
 		},
 		properties: {
-			id: {
-				attr: true,
-				init: function () {
+			id: skate.property.string({
+				default: function () {
 					return new Date().getTime();
 				}
-			},
-			completed: {
-				attr: true,
-				type: Boolean,
-				init: false,
-				update: function (elem, data) {
+			}),
+			completed: skate.property.boolean({
+				set: function (elem, data) {
 					skate.emit(elem, 'completed', { detail: elem });
 					util.toggleClass(elem, 'completed', data.newValue);
 					elem.querySelector('input[type="checkbox"]').checked = data.newValue;
 				}
-			},
-			editing: {
-				attr: true,
-				type: Boolean,
-				init: false,
-				update: function (elem, data) {
+			}),
+			editing: skate.property.boolean({
+				set: function (elem, data) {
 					util.toggleClass(elem, 'editing', data.newValue);
 				}
-			},
-			hidden: {
-				attr: true,
-				type: Boolean,
-				init: false,
-				update: function (elem, data) {
+			}),
+			hidden: skate.property.boolean({
+				set: function (elem, data) {
 					util.toggleClass(elem, 'hidden', data.newValue);
 				}
-			},
-			text: {
-				type: String,
-				init: 'New todo',
-				update: function (elem, data) {
+			}),
+			text: skate.property.string({
+				default: 'New todo',
+				set: function (elem, data) {
 					var value = data.newValue.trim();
 					elem.querySelector('label').textContent = value;
 					elem.querySelector('.edit').value = value;
@@ -82,7 +71,7 @@
 						detail: elem
 					});
 				}
-			}
+			})
 		},
 		prototype: {
 			get data () {
