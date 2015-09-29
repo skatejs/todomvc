@@ -11,6 +11,7 @@
 				default: 'todo-skatejs'
 			})
 		},
+
 		prototype: {
 			getKey: function (id) {
 				return this.keyPrefix + '-' + id;

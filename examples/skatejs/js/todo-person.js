@@ -6,6 +6,8 @@
 			nick: skate.property.string(),
 			textContent: skate.property.string()
 		},
+
+		// The render lifecycle is controlled by <todo-app>.
 		render: function (state) {
 			return state.nick ?
 				`<a href="http://twitter.com/${state.nick}">${state.textContent || state.nick}</a>` :

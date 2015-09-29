@@ -21,6 +21,7 @@
 			}
 			setClassNames(elem, names);
 		},
+
 		removeClass: function (elem, name) {
 			var names = getClassNames(elem);
 			var index = names.indexOf(name);
@@ -29,6 +30,7 @@
 			}
 			setClassNames(elem, names);
 		},
+
 		toggleClass: function (elem, name, flag) {
 			this[flag ? 'addClass' : 'removeClass'](elem, name);
 		},
@@ -41,15 +43,7 @@
 				elem.__hasDiffer = true;
 				skateDomDiff.merge({
 					source: elem,
-					destination: skate.fragment(render()),
-					descend: function (src) {
-						// Ingore elements that don't want to be diffed. This allows for seamless
-						// integration between components that need to be responsible for their
-						// own render tree. You can remove this check and have the top component
-						// responsible for diffing and building the entire tree but that means
-						// that all of your components should follow the same rendering method.
-						return src.hasAttribute && !src.hasAttribute('data-skate-ignore-diff');
-					}
+					destination: skate.fragment(render())
 				});
 				return doRender;
 			}

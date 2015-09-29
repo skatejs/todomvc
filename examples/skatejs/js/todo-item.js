@@ -18,9 +18,8 @@
 				skate.emit(this, 'destroy', { detail: this });
 			},
 			'dblclick label': function () {
-				var edit = this.querySelector('.edit');
 				util.addClass(this, 'editing');
-				edit.focus();
+				this.querySelector('.edit').focus();
 			},
 			'blur .edit': function (e) {
 				this.textContent = e.delegateTarget.value;
@@ -39,6 +38,7 @@
 				}
 			}
 		},
+
 		properties: {
 			completed: skate.property.boolean({
 				set: function (elem, data) {
@@ -54,6 +54,7 @@
 				}
 			})
 		},
+
 		prototype: {
 			get data () {
 				return {
@@ -64,7 +65,13 @@
 			}
 		},
 
-		// This component manages it's own render tree.
+		// This component manages it's own render tree. However, it does not conflict
+		// with the fact that <todo-app> renders uses a DOM differ to render its tree.
+		// The manually managed state here is to demo how components with disparate
+		// rendering lifecycles can be used with Skate as Skate has no opinions about
+		// how you should be handling it. This means you can use any templating
+		// language and render it any way you want for any given component, Skate
+		// just gives you the tools to make it easy.
 		render: function (state) {
 			return `
 				<div class="view">

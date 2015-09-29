@@ -14,6 +14,10 @@
 	}
 
 	exports.TodoApp = skate('todo-app', {
+		// Events are used to communicate from descendant to parent to decouple them
+		// from each other. That way, descendants do not impose a particular DOM
+		// structure and can be used anywhere if need be because it's up to the
+		// parent to respond to events any way they see fit.
 		events: {
 			clear: function () {
 				var elem = this;
@@ -52,6 +56,7 @@
 				this.filter = this.filter;
 			}
 		},
+
 		properties: {
 			filter: skate.property.string({
 				emit: true,
@@ -61,6 +66,7 @@
 			}),
 			storeId: skate.property.string()
 		},
+
 		prototype: {
 			get active () {
 				return this.items.filter(function (item) {
@@ -85,6 +91,15 @@
 				return document.getElementById(this.storeId);
 			}
 		},
+
+		// This component is the top-level component. It renders the entire app tree.
+		// It uses a DOM differ to diff and patch the tree based on its state. Though
+		// a good pattern to use when rendering a large DOM that will change often,
+		// it's not the only way you can manage the DOM tree using Skate. You can
+		// use anything you want to render your component. You could also have just
+		// used your property setters to mutate state as some of the other components
+		// do. Though this can be more problematic due to side effects and managing
+		// mutable state, Skate isn't going to stop you.
 		render: function (elem) {
 			return `
 				<section class="todoapp">
@@ -113,6 +128,8 @@
 				</footer>
 			`;
 		},
+
+		// Diff and patch instead of hitting innerHTML with allthethings.
 		renderer: util.domDiff
 	});
 })(window, window.skate, window.TodoItem, window.util);
