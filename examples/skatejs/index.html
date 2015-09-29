@@ -10,11 +10,6 @@
 	<body>
 		<todo-store id="todo-store"></todo-store>
 		<todo-app store-id="todo-store"></todo-app>
-		<footer class="info">
-			<p>Double-click to edit a todo</p>
-			<p>Created by <a href="http://twitter.com/alexandereardon">Alex Reardon</a> and <a href="http://twitter.com/treshugart">Trey Shugart</a></p>
-			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
-		</footer>
 		<!-- Ordering of components matters because if one component expects to be
 		able to use another component as one of its descendants, then the descendant
 		component must be upgraded by the time the host component goes to use it.
@@ -27,11 +22,12 @@
 		<script src="node_modules/skatejs-dom-diff/dist/skatejs-dom-diff.js"></script>
 		<script src="node_modules/handlebars/dist/handlebars.js"></script>
 		<script src="js/util.js"></script>
-		<script src="js/todo-store.js"></script>
-		<script src="js/todo-item.js"></script>
-		<script src="js/todo-input.js"></script>
-		<script src="js/todo-toggle.js"></script>
 		<script src="js/todo-footer.js"></script>
+		<script src="js/todo-input.js"></script>
+		<script src="js/todo-item.js"></script>
+		<script src="js/todo-person.js"></script>
+		<script src="js/todo-store.js"></script>
+		<script src="js/todo-toggle.js"></script>
 		<script src="js/todo-app.js"></script>
 	</body>
 </html>

@@ -1,5 +1,6 @@
 // import './todo-footer';
 // import './todo-item';
+// import './todo-person';
 // import skate from 'skatejs';
 // import util from './util';
 
@@ -105,6 +106,11 @@
 						<todo-footer count="${elem.active.length}" filter="${elem.filter}"></todo-footer>
 					` : ''}
 				</section>
+				<footer class="info">
+					<p>Double-click to edit a todo</p>
+					<p>Created by <todo-person nick="alexandereardon">Alex Reardon</todo-person> and <todo-person nick="treshugart">Trey Shugart</todo-person></p>
+					<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+				</footer>
 			`;
 		},
 		renderer: util.domDiff
