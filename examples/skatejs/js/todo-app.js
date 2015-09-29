@@ -3,7 +3,7 @@
 // import skate from 'skatejs';
 // import util from './util';
 
-(function (exports, skate, skateDomDiff, todoItem, util) {
+(function (exports, skate, todoItem, util) {
 	'use strict';
 
 	function filter (filter) {
@@ -109,4 +109,4 @@
 		},
 		renderer: util.domDiff
 	});
-})(window, window.skate, window.skateDomDiff, window.TodoItem, window.util);
+})(window, window.skate, window.TodoItem, window.util);
