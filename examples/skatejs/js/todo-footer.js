@@ -1,5 +1,4 @@
 // import skate from 'skatejs';
-// import util from './util';
 
 (function () {
 	'use strict';
@@ -10,12 +9,19 @@
 				skate.emit(this, 'filter', {
 					detail: e.delegateTarget.href.split('#/')[1]
 				});
+			},
+			'click button': function () {
+				skate.emit(this, 'clear');
 			}
 		},
+
+		// These properties are set from the <todo-app> component via attributes.
 		properties: {
-			count: skate.property.number({ emit: true }),
-			filter: skate.property.string({ emit: true })
+			count: skate.property.number(),
+			filter: skate.property.string()
 		},
+
+		// The render lifecycle is controlled by <todo-app>.
 		render: function (state) {
 			return `
 				<footer class="footer">

@@ -1,9 +1,6 @@
 // import './todo-footer';
-// import './todo-list';
+// import './todo-item';
 // import skate from 'skatejs';
-// import skateDomDiff from 'skatejs-dom-diff';
-// import todoFooter from './todo-footer';
-// import todoItem from './todo-item';
 // import util from './util';
 
 (function (exports, skate, skateDomDiff, todoItem, util) {
@@ -95,8 +92,10 @@
 						<input is="todo-input">
 					</header>
 					<section class="main">
-						<todo-toggle ${elem.items.length && elem.items.length === elem.completed.length ? 'selected' : ''}></todo-toggle>
-						<ul is="todo-list" class="todo-list">
+						${elem.items.length ? `
+							<todo-toggle ${elem.items.length && elem.items.length === elem.completed.length ? 'selected' : ''}></todo-toggle>
+						` : ''}
+						<ul class="todo-list">
 							${elem.filtered.map(function (item) {
 								return `<li is="todo-item" id="${item.id}" ${item.completed ? 'completed' : ''} data-skate-ignore-diff>${item.textContent}</li>`;
 							}).join('')}

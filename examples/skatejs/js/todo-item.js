@@ -63,6 +63,8 @@
 				};
 			}
 		},
+
+		// This component manages it's own render tree.
 		render: function (state) {
 			return `
 				<div class="view">

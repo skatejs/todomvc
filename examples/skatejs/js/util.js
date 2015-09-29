@@ -1,3 +1,5 @@
+// import skateDomDiff from 'skatejs-dom-diff';
+
 (function (exports) {
 	'use strict';
 

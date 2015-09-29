@@ -6,9 +6,9 @@
 
 	exports.TodoToggle = skate('todo-toggle', {
 		events: {
-			'change input[type="checkbox"]': function (e) {
+			'change input': function (e) {
 				skate.emit(this, 'toggle', {
-					detail: !!e.target.checked
+					detail: !!e.delegateTarget.checked
 				});
 			}
 		},
