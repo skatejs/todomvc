@@ -1,114 +1,113 @@
 // import './todo-footer';
 // import './todo-list';
 // import skate from 'skatejs';
+// import skateDomDiff from 'skatejs-dom-diff';
+// import todoFooter from './todo-footer';
 // import todoItem from './todo-item';
 // import util from './util';
 
-(function (exports, skate, todoItem, util) {
+(function (exports, skate, skateDomDiff, todoItem, util) {
 	'use strict';
 
-	function filterItem (filter, item) {
-		item.hidden = filter === 'completed' && !item.completed || filter === 'active' && item.completed;
+	function filter (filter) {
+		return function (item) {
+			return (filter === 'completed' && item.completed) || (filter === 'active' && !item.completed) || true;
+		};
 	}
 
 	exports.TodoApp = skate('todo-app', {
 		events: {
 			clear: function () {
-				this.footer.hidden = this.footer.count === 0;
-				this.toggle.selected = false;
-				this.toggle.hidden = true;
-				this.list.completed.forEach(function (item) {
-					item.remove();
-					this.store.remove(item.data);
-				}.bind(this));
-			},
-			completed: function (e) {
-				if (e.detail.completed) {
-					this.footer.count--;
-				} else {
-					this.footer.count++;
-				}
-
-				this.toggle.selected = this.list.items.length === this.list.completed.length;
-				filterItem(this.footer.filter, e.detail);
-				this.store.save(e.detail.data);
+				var elem = this;
+				this.items.forEach(function (item) {
+					if (item.completed) {
+						elem.store.remove(item);
+					}
+				});
+				this.filter = this.filter;
 			},
 			create: function (e) {
-				var item = todoItem({
-					text: e.detail
-				});
-
-				filterItem(this.footer.filter, item);
-				this.footer.count++;
-				this.footer.hidden = false;
-				this.list.appendChild(item);
-				this.store.save(item.data);
-				this.toggle.hidden = false;
+				var item = {
+					id: new Date().getTime(),
+					textContent: e.detail
+				};
+				this.store.save(item);
+				this.filter = this.filter;
 			},
-			edited: function (e) {
+			edit: function (e) {
 				this.store.save(e.detail.data);
+				this.filter = this.filter;
 			},
 			destroy: function (e) {
-				if (!e.detail.completed) {
-					this.footer.count--;
-				}
-
-				this.footer.hidden = this.toggle.hidden = this.footer.count === 0;
 				this.store.remove(e.target.data);
+				this.filter = this.filter;
 			},
-			filter: function () {
-				this.list.items.forEach(filterItem.bind(null, this.footer.filter));
+			filter: function (e) {
+				this.filter = e.detail;
 			},
 			toggle: function (e) {
-				this.list.items.forEach(function (item) {
-					item.completed = e.detail;
+				var store = this.store;
+				this.items.forEach(function (item) {
+					item.completed = !!e.detail;
+					store.save(item);
 				});
+				this.filter = this.filter;
 			}
 		},
 		properties: {
-			storageId: skate.property.string({
-				set: function (elem, data) {
-					elem.store = document.getElementById(data.newValue);
-					elem.list.innerHTML = '';
-					elem.store.getAll().forEach(function (data) {
-						var item = todoItem(data);
-
-						elem.list.appendChild(item);
-						filterItem(elem.footer.filter, item);
-
-						if (!item.completed) {
-							elem.footer.count++;
-						}
-					});
-
-					elem.footer.hidden = elem.toggle.hidden = elem.list.items.length === 0;
-					elem.toggle.selected = elem.list.items.length > 0 && elem.list.items.length === elem.list.completed.length;
+			filter: skate.property.string({
+				emit: true,
+				default: function () {
+					return window.location.hash.split('#/')[1];
 				}
-			})
+			}),
+			storeId: skate.property.string()
 		},
 		prototype: {
-			get footer () {
-				return this.querySelector('todo-footer');
+			get active () {
+				return this.items.filter(function (item) {
+					return !item.completed;
+				});
 			},
-			get list () {
-				return this.querySelector('[is=todo-list]');
+			get completed () {
+				return this.items.filter(function (item) {
+					return item.completed;
+				});
 			},
-			get toggle () {
-				return this.querySelector('todo-toggle');
+			get filtered () {
+				var filter = this.filter;
+				return this.items.filter(function (item) {
+					return (filter === 'completed' && item.completed) || (filter === 'active' && !item.completed) || filter === '';
+				});
+			},
+			get items () {
+				return this.store.getAll();
+			},
+			get store () {
+				return document.getElementById(this.storeId);
 			}
 		},
-		render: util.template(
-			'<section class="todoapp">',
-				'<header class="header">',
-					'<h1>todos</h1>',
-					'<input is="todo-input">',
-				'</header>',
-				'<section class="main">',
-					'<todo-toggle></todo-toggle>',
-					'<ul is="todo-list" class="todo-list"></ul>',
-				'</section>',
-				'<todo-footer></todo-footer>',
-			'</section>'
-		)
+		render: function (elem) {
+			return `
+				<section class="todoapp">
+					<header class="header">
+						<h1>todos</h1>
+						<input is="todo-input">
+					</header>
+					<section class="main">
+						<todo-toggle ${elem.items.length && elem.items.length === elem.completed.length ? 'selected' : ''}></todo-toggle>
+						<ul is="todo-list" class="todo-list">
+							${elem.filtered.map(function (item) {
+								return `<li is="todo-item" id="${item.id}" ${item.completed ? 'completed' : ''} data-skate-ignore-diff>${item.textContent}</li>`;
+							}).join('')}
+						</ul>
+					</section>
+					${elem.items.length ? `
+						<todo-footer count="${elem.active.length}" filter="${elem.filter}"></todo-footer>
+					` : ''}
+				</section>
+			`;
+		},
+		renderer: util.domDiff
 	});
-})(window, window.skate, window.TodoItem, window.util);
+})(window, window.skate, window.skateDomDiff, window.TodoItem, window.util);

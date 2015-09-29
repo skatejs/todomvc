@@ -1,65 +1,36 @@
 // import skate from 'skatejs';
 // import util from './util';
 
-(function (exports, skate, util) {
+(function () {
 	'use strict';
 
-	exports.TodoFooter = skate('todo-footer', {
+	skate('todo-footer', {
 		events: {
-			'click .filters a': function (e) {
-				this.filter = (e.delegateTarget.hash || '').replace('#/', '');
-			},
-			'click .clear-completed': function () {
-				skate.emit(this, 'clear');
+			'click a': function (e) {
+				skate.emit(this, 'filter', {
+					detail: e.delegateTarget.href.split('#/')[1]
+				});
 			}
 		},
 		properties: {
-			count: skate.property.number({
-				set: function (elem, data) {
-					elem.querySelector('.todo-count strong').textContent = data.newValue;
-				}
-			}),
-			hidden: skate.property.boolean({
-				set: function (elem, data) {
-					util.toggleClass(elem, 'hidden', data.newValue);
-				}
-			}),
-			filter: skate.property.string({
-				set: function (elem, data) {
-					skate.emit(elem, 'filter', {
-						detail: data.newValue
-					});
-					Array.prototype.slice
-						.call(elem.querySelectorAll('.filters a'))
-						.map(function (anchor) {
-							anchor.className = '';
-							return anchor;
-						})
-						.filter(function (anchor) {
-							var type = anchor.hash.split('#/')[1];
-							return type === data.newValue;
-						})
-						.forEach(function (anchor) {
-							anchor.className = 'selected';
-						});
-				}
-			})
+			count: skate.property.number({ emit: true }),
+			filter: skate.property.string({ emit: true })
 		},
-		render: util.template(
-			'<footer class="footer">',
-				'<span class="todo-count"><strong>0</strong> item left</span>',
-				'<ul class="filters">',
-					'<li><a class="selected" href="#/">All</a></li>',
-					'<li><a href="#/active">Active</a></li>',
-					'<li><a href="#/completed">Completed</a></li>',
-				'</ul>',
-				'<button class="clear-completed">Clear completed</button>',
-			'</footer>'
-		),
-		attached: function (elem) {
-			// Super basic routing on initialisation. Skate has no opinions about what
-			// type of routing solution to use.
-			elem.filter = window.location.hash.split('#/')[1];
+		render: function (state) {
+			return `
+				<footer class="footer">
+					<span class="todo-count">
+						<strong>${state.count}</strong>
+						item${state.count !== 1 ? 's' : ''} left
+					</span>
+					<ul class="filters">
+						<li><a href="#/" class="${state.filter === '' ? 'selected' : ''}">All</a></li>
+						<li><a href="#/active" class="${state.filter === 'active' ? 'selected' : ''}">Active</a></li>
+						<li><a href="#/completed" class="${state.filter === 'completed' ? 'selected' : ''}">Completed</a></li>
+					</ul>
+					<button class="clear-completed">Clear completed</button>
+				</footer>
+			`;
 		}
 	});
-})(window, window.skate, window.util);
+}());

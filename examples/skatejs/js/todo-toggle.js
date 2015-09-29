@@ -24,9 +24,11 @@
 				}
 			})
 		},
-		render: util.template(
-      '<input class="toggle-all" type="checkbox">',
-      '<label for="toggle-all">Mark all as complete</label>'
-		)
+		render: function () {
+			return `
+				<input class="toggle-all" type="checkbox">
+				<label for="toggle-all">Mark all as complete</label>
+			`;
+		}
 	});
 })(window, window.skate, window.util);

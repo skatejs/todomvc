@@ -12,23 +12,24 @@
 		events: {
 			'change .toggle': function (e) {
 				this.completed = e.delegateTarget.checked;
+				skate.emit(this, 'edit', { detail: this });
 			},
 			'click .destroy': function () {
 				skate.emit(this, 'destroy', { detail: this });
 			},
 			'dblclick label': function () {
 				var edit = this.querySelector('.edit');
-				this.value = this.text;
 				util.addClass(this, 'editing');
 				edit.focus();
 			},
 			'blur .edit': function (e) {
-				this.text = e.delegateTarget.value;
+				this.textContent = e.delegateTarget.value;
 				util.removeClass(this, 'editing');
+				skate.emit(this, 'edit', { detail: this });
 			},
 			'keyup .edit': function (e) {
 				if (e.keyCode === KEYCODE_ENTER) {
-					this.text = e.delegateTarget.value;
+					this.textContent = e.delegateTarget.value;
 					util.removeClass(this, 'editing');
 					return;
 				}
@@ -39,65 +40,38 @@
 			}
 		},
 		properties: {
-			id: skate.property.string({
-				default: function () {
-					return new Date().getTime();
-				}
-			}),
 			completed: skate.property.boolean({
 				set: function (elem, data) {
-					skate.emit(elem, 'completed', { detail: elem });
-					util.toggleClass(elem, 'completed', data.newValue);
-					elem.querySelector('input[type="checkbox"]').checked = data.newValue;
+					elem.querySelector('.toggle').checked = data.newValue;
 				}
 			}),
-			editing: skate.property.boolean({
-				set: function (elem, data) {
-					util.toggleClass(elem, 'editing', data.newValue);
-				}
-			}),
-			hidden: skate.property.boolean({
-				set: function (elem, data) {
-					util.toggleClass(elem, 'hidden', data.newValue);
-				}
-			}),
-			text: skate.property.string({
+			textContent: skate.property.string({
+				attribute: false,
 				default: 'New todo',
 				set: function (elem, data) {
-					var value = data.newValue.trim();
-					elem.querySelector('label').textContent = value;
-					elem.querySelector('.edit').value = value;
-					skate.emit(elem, 'edited', {
-						detail: elem
-					});
+					elem.querySelector('label').textContent = data.newValue;
+					elem.querySelector('.edit').value = data.newValue;
 				}
 			})
 		},
 		prototype: {
 			get data () {
 				return {
+					completed: this.completed,
 					id: this.id,
-					text: this.text,
-					completed: !!this.completed
+					textContent: this.textContent
 				};
-			},
-			set data (value) {
-				if (!value) {
-					return;
-				}
-
-				this.completed = value.completed || undefined;
-				this.text = value.text;
-				this.id = value.id;
 			}
 		},
-		render: util.template(
-			'<div class="view">',
-				'<input class="toggle" type="checkbox">',
-				'<label>Taste JavaScript</label>',
-				'<button class="destroy"></button>',
-			'</div>',
-			'<input class="edit" value="Create a TodoMVC template">'
-		)
+		render: function (state) {
+			return `
+				<div class="view">
+					<input class="toggle" type="checkbox">
+					<label></label>
+					<button class="destroy"></button>
+				</div>
+				<input class="edit">
+			`;
+		}
 	});
 })(window, window.skate, window.util);
