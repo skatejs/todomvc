@@ -40,7 +40,6 @@
 		// to use separate rendering methods.
 		domDiff: function (elem, render) {
 			function doRender () {
-				elem.__hasDiffer = true;
 				skateDomDiff.merge({
 					source: elem,
 					destination: skate.fragment(render())
