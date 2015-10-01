@@ -61,7 +61,8 @@
 			filter: skate.property.string({
 				emit: true,
 				default: function () {
-					return window.location.hash.split('#/')[1];
+					var filter = window.location.hash.split('#/');
+					return filter.length === 2 ? filter[1] : '';
 				}
 			}),
 			storeId: skate.property.string()
