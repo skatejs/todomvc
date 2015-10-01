@@ -1,7 +1,9 @@
 // import skate from 'skatejs';
 
-(function (skate) {
-	window.TodoPerson = skate('todo-person', {
+(function (exports, skate) {
+	'use strict';
+
+	exports.TodoPerson = skate('todo-person', {
 		properties: {
 			nick: skate.property.string(),
 			textContent: skate.property.string()
@@ -14,4 +16,4 @@
 				`<span>${state.textContent}</span>`;
 		}
 	});
-}(window.skate));
+}(window, window.skate));

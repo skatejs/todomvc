@@ -109,7 +109,7 @@
 					</header>
 					<section class="main">
 						${elem.items.length ? `
-							<todo-toggle ${elem.items.length && elem.items.length === elem.completed.length ? 'selected' : ''}></todo-toggle>
+							<todo-toggle ${elem.items.length && elem.items.length === elem.completed.length ? 'selected' : ''} data-skate-ignore-diff></todo-toggle>
 						` : ''}
 						<ul class="todo-list">
 							${elem.filtered.map(function (item) {

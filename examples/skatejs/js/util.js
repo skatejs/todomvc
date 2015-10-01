@@ -42,7 +42,10 @@
 			function doRender () {
 				skateDomDiff.merge({
 					source: elem,
-					destination: skate.fragment(render())
+					destination: skate.fragment(render()),
+					descend: function (src) {
+						return src.hasAttribute && !src.hasAttribute('data-skate-ignore-diff');
+					}
 				});
 				return doRender;
 			}
