@@ -79,7 +79,14 @@
 				}
 			}),
 			storeId: skate.properties.string({
-				attribute: true
+				attribute: true,
+				set: function (elem) {
+					var list = getList(elem);
+					list.innerHTML = '';
+					elem.items.forEach(function (item) {
+						list.appendChild(todoItem(item));
+					});
+				}
 			})
 		},
 		prototype: {

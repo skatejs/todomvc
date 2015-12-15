@@ -12,7 +12,7 @@
 	}
 
 	function getLabel (item) {
-		return elem.querySelector('label');
+		return item.querySelector('label');
 	}
 
 	function getToggle (item) {
