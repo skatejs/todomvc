@@ -115,7 +115,7 @@
 						<todo-toggle></todo-toggle>
 						<ul class="todo-list"></ul>
 					</section>
-					<todo-footer count="${elem.active.length}" filter="${elem.filter}"></todo-footer>
+					<todo-footer></todo-footer>
 				</section>
 				<footer class="info">
 					<p>Double-click to edit a todo</p>
