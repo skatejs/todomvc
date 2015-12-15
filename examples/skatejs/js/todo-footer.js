@@ -1,42 +1,73 @@
 // import skate from 'skatejs';
+// import util from './util';
 
-(function () {
+(function (exports, skate, util) {
 	'use strict';
 
-	skate('todo-footer', {
+	function getCountNumber (footer) {
+		return footer.querySelector('.todo-count strong');
+	}
+
+	function getCountWords (footer) {
+		return footer.querySelector('.todo-count span');
+	}
+
+	function getFilterAnchor (footer, type) {
+		return footer.querySelector('[data-type="' + type + '"]');
+	}
+
+	function getFilterAnchors (footer) {
+		return [].slice.call(footer.querySelector('.filters a'));
+	}
+
+	exports.TodoFooter = skate('todo-footer', {
 		events: {
 			'click a': function (e) {
 				skate.emit(this, 'filter', {
-					detail: e.delegateTarget.href.split('#/')[1]
+					detail: e.currentTarget.href.split('#/')[1]
 				});
 			},
 			'click button': function () {
 				skate.emit(this, 'clear');
 			}
 		},
-
-		// These properties are set from the <todo-app> component via attributes.
 		properties: {
-			count: skate.property.number(),
-			filter: skate.property.string()
-		},
+			count: skate.properties.number({
+				set: function (elem, data) {
+					getCountNumber(elem).textContent = data.newValue;
+					getCountWords(elem).textContent = data.newValue === 1 ? '' : 's';
+					util.toggleClass(elem, 'hidden', !data.newValue);
+				}
+			}),
+			filter: skate.properties.string({
+				set: function (elem, data) {
+					var anchor = getFilterAnchor(elem, data.newValue);
 
-		// The render lifecycle is controlled by <todo-app>.
-		render: function (state) {
+					getFilterAnchors(elem).forEach(function (anchor) {
+						anchor.className = '';
+					});
+
+					if (anchor) {
+						anchor.className = 'selected';
+					}
+				}
+			})
+		},
+		render: skate.render.html(function () {
 			return `
 				<footer class="footer">
 					<span class="todo-count">
-						<strong>${state.count}</strong>
-						item${state.count !== 1 ? 's' : ''} left
+						<strong></strong>
+						item<span></span> left
 					</span>
 					<ul class="filters">
-						<li><a href="#/" class="${state.filter === '' ? 'selected' : ''}">All</a></li>
-						<li><a href="#/active" class="${state.filter === 'active' ? 'selected' : ''}">Active</a></li>
-						<li><a href="#/completed" class="${state.filter === 'completed' ? 'selected' : ''}">Completed</a></li>
+						<li><a href="#/" data-type="all">All</a></li>
+						<li><a href="#/active" data-type="active">Active</a></li>
+						<li><a href="#/completed" data-type="completed">Completed</a></li>
 					</ul>
 					<button class="clear-completed">Clear completed</button>
 				</footer>
 			`;
-		}
+		})
 	});
-}());
+}(window, window.skate, window.util));

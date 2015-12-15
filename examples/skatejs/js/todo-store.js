@@ -7,11 +7,10 @@
 
 	exports.TodoStore = skate('todo-store', {
 		properties: {
-			keyPrefix: skate.property.string({
+			keyPrefix: skate.properties.string({
 				default: 'todo-skatejs'
 			})
 		},
-
 		prototype: {
 			getKey: function (id) {
 				return this.keyPrefix + '-' + id;

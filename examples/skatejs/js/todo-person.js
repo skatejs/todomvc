@@ -3,17 +3,37 @@
 (function (exports, skate) {
 	'use strict';
 
+	function getAnchor (person) {
+		return person.querySelector('a');
+	}
+
+	function getContent (person) {
+		return person.querySelector('span');
+	}
+
 	exports.TodoPerson = skate('todo-person', {
 		properties: {
-			nick: skate.property.string(),
-			textContent: skate.property.string()
+			nick: skate.properties.string({
+				set: function (elem, data) {
+					var anchor = getAnchor(elem);
+					anchor.href = 'http://twitter.com/' + data.newValue;
+					anchor.textContent = this.textContent || data.newValue;
+				}
+			}),
+			textContent: skate.properties.string({
+				set: function (elem, data) {
+					var anchor = getAnchor(elem);
+					var content = getContent(elem);
+					anchor.textContent = data.newValue || elem.nick;
+					content.textContent = data.newValue;
+				}
+			})
 		},
-
-		// The render lifecycle is controlled by <todo-app>.
-		render: function (state) {
-			return state.nick ?
-				`<a href="http://twitter.com/${state.nick}">${state.textContent || state.nick}</a>` :
-				`<span>${state.textContent}</span>`;
-		}
+		render: skate.render.html(function () {
+			return `
+				<a></a>
+				<span></span>
+			`;
+		})
 	});
 }(window, window.skate));

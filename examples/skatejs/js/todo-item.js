@@ -7,11 +7,23 @@
 	var KEYCODE_ENTER = 13;
 	var KEYCODE_ESCAPE = 27;
 
+	function getEdit (item) {
+		return item.querySelector('.edit');
+	}
+
+	function getLabel (item) {
+		return elem.querySelector('label');
+	}
+
+	function getToggle (item) {
+		return item.querySelector('.toggle');
+	}
+
 	exports.TodoItem = skate('todo-item', {
 		extends: 'li',
 		events: {
 			'change .toggle': function (e) {
-				this.completed = e.delegateTarget.checked;
+				this.completed = e.currentTarget.checked;
 				skate.emit(this, 'edit', { detail: this });
 			},
 			'click .destroy': function () {
@@ -19,42 +31,40 @@
 			},
 			'dblclick label': function () {
 				util.addClass(this, 'editing');
-				this.querySelector('.edit').focus();
+				getEdit(this).focus();
 			},
 			'blur .edit': function (e) {
-				this.textContent = e.delegateTarget.value;
+				this.textContent = e.currentTarget.value;
 				util.removeClass(this, 'editing');
 				skate.emit(this, 'edit', { detail: this });
 			},
 			'keyup .edit': function (e) {
 				if (e.keyCode === KEYCODE_ENTER) {
-					this.textContent = e.delegateTarget.value;
+					this.textContent = e.currentTarget.value;
 					util.removeClass(this, 'editing');
 					return;
 				}
 
 				if (e.keyCode === KEYCODE_ESCAPE) {
-					this.querySelector('.edit').blur();
+					getEdit(this).blur();
 				}
 			}
 		},
-
 		properties: {
-			completed: skate.property.boolean({
+			completed: skate.properties.boolean({
 				set: function (elem, data) {
-					elem.querySelector('.toggle').checked = data.newValue;
+					getToggle(elem).checked = data.newValue;
 				}
 			}),
-			textContent: skate.property.string({
+			textContent: skate.properties.string({
 				attribute: false,
 				default: 'New todo',
 				set: function (elem, data) {
-					elem.querySelector('label').textContent = data.newValue;
-					elem.querySelector('.edit').value = data.newValue;
+					getLabel(elem).textContent = data.newValue;
+					getEdit(elem).value = data.newValue;
 				}
 			})
 		},
-
 		prototype: {
 			get data () {
 				return {
@@ -64,15 +74,7 @@
 				};
 			}
 		},
-
-		// This component manages it's own render tree. However, it does not conflict
-		// with the fact that <todo-app> renders uses a DOM differ to render its tree.
-		// The manually managed state here is to demo how components with disparate
-		// rendering lifecycles can be used with Skate as Skate has no opinions about
-		// how you should be handling it. This means you can use any templating
-		// language and render it any way you want for any given component, Skate
-		// just gives you the tools to make it easy.
-		render: function (state) {
+		render: skate.render.html(function () {
 			return `
 				<div class="view">
 					<input class="toggle" type="checkbox">
@@ -81,6 +83,6 @@
 				</div>
 				<input class="edit">
 			`;
-		}
+		})
 	});
 })(window, window.skate, window.util);

@@ -1,73 +1,87 @@
-// import './todo-footer';
-// import './todo-item';
-// import './todo-person';
+// import todoFooter from './todo-footer';
+// import todoItem from './todo-item';
+// import todoPerson from './todo-person';
 // import skate from 'skatejs';
 // import util from './util';
 
 (function (exports, skate, todoItem, util) {
 	'use strict';
 
-	function filter (filter) {
-		return function (item) {
-			return (filter === 'completed' && item.completed) || (filter === 'active' && !item.completed) || true;
-		};
+	function getFooter (app) {
+		return app.querySelector('todo-footer');
+	}
+
+	function getItem (data) {
+		return document.getElementById(data.id);
+	}
+
+	function getList (app) {
+		return app.querySelector('.todo-list');
+	}
+
+	function getStore (app) {
+		return document.getElementById(app.storeId);
+	}
+
+	function setFilter (app, filter) {
+		app.filter = filter || app.filter;
 	}
 
 	exports.TodoApp = skate('todo-app', {
-		// Events are used to communicate from descendant to parent to decouple them
-		// from each other. That way, descendants do not impose a particular DOM
-		// structure and can be used anywhere if need be because it's up to the
-		// parent to respond to events any way they see fit.
 		events: {
 			clear: function () {
 				var elem = this;
 				this.items.forEach(function (item) {
 					if (item.completed) {
-						elem.store.remove(item);
+						getStore(elem).remove(item);
+						getItem(item).remove();
 					}
 				});
-				this.filter = this.filter;
 			},
 			create: function (e) {
 				var item = {
 					id: new Date().getTime(),
 					textContent: e.detail
 				};
-				this.store.save(item);
-				this.filter = this.filter;
+				getStore(this).save(item);
+				getList(this).appendChild(todoItem(item));
+				setFilter(this);
 			},
 			edit: function (e) {
-				this.store.save(e.detail.data);
-				this.filter = this.filter;
+				getStore(this).save(e.detail.data);
 			},
 			destroy: function (e) {
-				this.store.remove(e.target.data);
-				this.filter = this.filter;
+				getStore(this).remove(e.target.data);
+				getList(this).removeChild(e.target);
 			},
 			filter: function (e) {
-				this.filter = e.detail;
+				setFilter(e.detail);
 			},
 			toggle: function (e) {
-				var store = this.store;
 				this.items.forEach(function (item) {
 					item.completed = !!e.detail;
-					store.save(item);
+					getStore(e.delegateTarget).save(item);
+					getItem(item).completed = true;
 				});
-				this.filter = this.filter;
+				setFilter(this);
 			}
 		},
-
 		properties: {
-			filter: skate.property.string({
-				emit: true,
+			filter: skate.properties.string({
 				default: function () {
 					var filter = window.location.hash.split('#/');
 					return filter.length === 2 ? filter[1] : '';
+				},
+				set: function (elem, data) {
+					var footer = getFooter(elem);
+					footer.count = elem.filtered.length;
+					footer.filter = data.newValue;
 				}
 			}),
-			storeId: skate.property.string()
+			storeId: skate.properties.string({
+				attribute: true
+			})
 		},
-
 		prototype: {
 			get active () {
 				return this.items.filter(function (item) {
@@ -86,22 +100,11 @@
 				});
 			},
 			get items () {
-				return this.store.getAll();
-			},
-			get store () {
-				return document.getElementById(this.storeId);
+				var store = getStore(this);
+				return store ? store.getAll() : [];
 			}
 		},
-
-		// This component is the top-level component. It renders the entire app tree.
-		// It uses a DOM differ to diff and patch the tree based on its state. Though
-		// a good pattern to use when rendering a large DOM that will change often,
-		// it's not the only way you can manage the DOM tree using Skate. You can
-		// use anything you want to render your component. You could also have just
-		// used your property setters to mutate state as some of the other components
-		// do. Though this can be more problematic due to side effects and managing
-		// mutable state, Skate isn't going to stop you.
-		render: function (elem) {
+		render: skate.render.html(function (elem) {
 			return `
 				<section class="todoapp">
 					<header class="header">
@@ -109,18 +112,10 @@
 						<input is="todo-input">
 					</header>
 					<section class="main">
-						${elem.items.length ? `
-							<todo-toggle ${elem.items.length && elem.items.length === elem.completed.length ? 'selected' : ''} data-skate-ignore-diff></todo-toggle>
-						` : ''}
-						<ul class="todo-list">
-							${elem.filtered.map(function (item) {
-								return `<li is="todo-item" id="${item.id}" ${item.completed ? 'completed' : ''} data-skate-ignore-diff>${item.textContent}</li>`;
-							}).join('')}
-						</ul>
+						<todo-toggle></todo-toggle>
+						<ul class="todo-list"></ul>
 					</section>
-					${elem.items.length ? `
-						<todo-footer count="${elem.active.length}" filter="${elem.filter}"></todo-footer>
-					` : ''}
+					<todo-footer count="${elem.active.length}" filter="${elem.filter}"></todo-footer>
 				</section>
 				<footer class="info">
 					<p>Double-click to edit a todo</p>
@@ -128,9 +123,6 @@
 					<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 				</footer>
 			`;
-		},
-
-		// Diff and patch instead of hitting innerHTML with allthethings.
-		renderer: util.domDiff
+		})
 	});
 })(window, window.skate, window.TodoItem, window.util);
