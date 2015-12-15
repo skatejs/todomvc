@@ -1,9 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "handlebars": "^4.0.3",
     "skatejs": "0.15.0",
-    "skatejs-dom-diff": "0.0.2",
     "todomvc-app-css": "^2.0.0",
     "todomvc-common": "^1.0.0"
   }
