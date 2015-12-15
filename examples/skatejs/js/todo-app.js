@@ -15,6 +15,10 @@
 		return document.getElementById(data.id);
 	}
 
+	function getItems (app) {
+		return [].slice.call(app.querySelectorAll('.todo-list > li'));
+	}
+
 	function getList (app) {
 		return app.querySelector('.todo-list');
 	}
@@ -23,8 +27,26 @@
 		return document.getElementById(app.storeId);
 	}
 
+	function getToggle (app) {
+		return app.querySelector('todo-toggle');
+	}
+
 	function setFilter (app, filter) {
 		app.filter = filter || app.filter;
+	}
+
+	function filterItems (app) {
+		getItems(app).forEach(function (item) {
+			var hidden;
+
+			if (app.filter === 'all') {
+				hidden = false;
+			} else {
+				hidden = (item.completed && app.filter === 'active') || (!item.completed && app.filter === 'completed');
+			}
+
+			util.toggleClass(item, 'hidden', hidden);
+		});
 	}
 
 	exports.TodoApp = skate('todo-app', {
@@ -37,6 +59,7 @@
 						getItem(item).remove();
 					}
 				});
+				setFilter(this);
 			},
 			create: function (e) {
 				var item = {
@@ -49,19 +72,22 @@
 			},
 			edit: function (e) {
 				getStore(this).save(e.detail.data);
+				setFilter(this);
 			},
 			destroy: function (e) {
 				getStore(this).remove(e.target.data);
 				getList(this).removeChild(e.target);
+				setFilter(this);
 			},
 			filter: function (e) {
-				setFilter(e.detail);
+				setFilter(this, e.detail);
 			},
 			toggle: function (e) {
 				this.items.forEach(function (item) {
-					item.completed = !!e.detail;
+					var completed = !!e.detail;
+					item.completed = completed;
 					getStore(e.delegateTarget).save(item);
-					getItem(item).completed = true;
+					getItem(item).completed = completed;
 				});
 				setFilter(this);
 			}
@@ -73,9 +99,20 @@
 					return filter.length === 2 ? filter[1] : '';
 				},
 				set: function (elem, data) {
+					var filter = data.newValue;
 					var footer = getFooter(elem);
-					footer.count = elem.filtered.length;
-					footer.filter = data.newValue;
+					var activeLen = elem.active.length;
+					var completedLen = elem.completed.length;
+					var itemsLen = elem.items.length;
+
+					footer.count = activeLen;
+					footer.filter = filter;
+
+					util.toggleClass(getFooter(elem), 'hidden', !itemsLen);
+					util.toggleClass(getToggle(elem), 'hidden', !itemsLen);
+
+					getToggle(elem).selected = completedLen === itemsLen;
+					filterItems(elem, filter);
 				}
 			}),
 			storeId: skate.properties.string({
@@ -86,6 +123,7 @@
 					elem.items.forEach(function (item) {
 						list.appendChild(todoItem(item));
 					});
+					setFilter(elem);
 				}
 			})
 		},

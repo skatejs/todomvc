@@ -17,15 +17,14 @@
 	}
 
 	function getFilterAnchors (footer) {
-		return [].slice.call(footer.querySelector('.filters a'));
+		return [].slice.call(footer.querySelectorAll('.filters a'));
 	}
 
 	exports.TodoFooter = skate('todo-footer', {
 		events: {
 			'click a': function (e) {
-				skate.emit(this, 'filter', {
-					detail: e.currentTarget.href.split('#/')[1]
-				});
+				var filter = e.currentTarget.getAttribute('data-type');
+				skate.emit(this, 'filter', { detail: filter });
 			},
 			'click button': function () {
 				skate.emit(this, 'clear');
@@ -36,7 +35,6 @@
 				set: function (elem, data) {
 					getCountNumber(elem).textContent = data.newValue;
 					getCountWords(elem).textContent = data.newValue === 1 ? '' : 's';
-					util.toggleClass(elem, 'hidden', !data.newValue);
 				}
 			}),
 			filter: skate.properties.string({
