@@ -1,35 +1,31 @@
-# Framework Name • [TodoMVC](http://todomvc.com)
+# SkateJS • [TodoMVC](http://todomvc.com)
 
-> Official description of the framework (from its website)
+> Skate is a web component library that provides an API to bind behaviour to DOM elements. It's based on the W3C specification for Custom Elements.
 
 
 ## Resources
 
-- [Website]()
-- [Documentation]()
-- [Used by]()
-- [Blog]()
-- [FAQ]()
+- [Website](https://github.com/skatejs/skatejs)
+- [Documentation](https://github.com/skatejs/skatejs)
 
 ### Articles
 
-- [Interesting article]()
+- [Web Platform Podcast #66](https://www.youtube.com/watch?v=AbolmN4mp-g)
 
 ### Support
 
-- [StackOverflow](http://stackoverflow.com/questions/tagged/__)
-- [Google Groups]()
-- [Twitter](http://twitter.com/__)
-- [Google+]()
+- [GitHub](https://github.com/skatejs/skatejs/issues?q=is%3Aopen+is%3Aissue+label%3Aquestion)
+- [StackOverflow](http://stackoverflow.com/questions/tagged/skatejs)
+- [Twitter](http://twitter.com/treshugart)
 
 *Let us [know](https://github.com/tastejs/todomvc/issues) if you discover anything worth sharing.*
 
 
 ## Implementation
 
-How was the app created? Anything worth sharing about the process of creating the app? Any spec violations?
+This is how you'd build a TodoMVC app with *just* SkateJS using normal DOM means and simple templating. It's very basic, but it's a good starting point to begin experimenting and adding libraries to remove a lot of the boilerplate with maintaining state.
 
 
 ## Credit
 
-Created by [Your Name](http://your-website.com)
+Created by [Trey Shugart](http://twitter.com/treshugart) and [Alex Reardom](http://twitter.com/alexreardon).
