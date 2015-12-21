@@ -906,7 +906,7 @@
   
     // Remove all handlers not being set.
     for (var _name in eventHandlers) {
-      if (!(_name in dstEvents)) {
+      if (!dstEvents || !(_name in dstEvents)) {
         var value = null;
         instructions.push({
           data: { name: _name, value: value },
@@ -1266,12 +1266,10 @@
   
   var _realNode2 = _interopRequireDefault(_realNode);
   
-  var Node = window.Node;
-  
   exports['default'] = function (node) {
     var tmp = (0, _realNode2['default'])(node);
     var contentNode = tmp.content;
-    return contentNode instanceof Node ? contentNode : tmp;
+    return contentNode.appendChild ? contentNode : tmp;
   };
   
   module.exports = exports['default'];
@@ -3063,251 +3061,6 @@
   
   return module.exports;
 }).call(this);
-// node_modules/skatejs/lib/util/data.js
-(typeof window === 'undefined' ? global : window).__51b0d085f49d51d53774d7f5b0c57ff9 = (function () {
-  var module = {
-    exports: {}
-  };
-  var exports = module.exports;
-  var defineDependencies = {
-    "module": module,
-    "exports": exports
-  };
-  var define = function defineReplacementWrapper(generatedModuleName) {
-    return function defineReplacement(name, deps, func) {
-      var root = (typeof window === 'undefined' ? global : window);
-      var defineGlobal = root.define;
-      var rval;
-      var type;
-  
-      func = [func, deps, name].filter(function (cur) {
-        return typeof cur === 'function';
-      })[0];
-      deps = [deps, name, []].filter(Array.isArray)[0];
-      rval = func.apply(null, deps.map(function (value) {
-        return defineDependencies[value];
-      }));
-      type = typeof rval;
-  
-      // Support existing AMD libs.
-      if (typeof defineGlobal === 'function') {
-        // Almond always expects a name so resolve one (#29).
-        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
-      }
-  
-      // Some processors like Babel don't check to make sure that the module value
-      // is not a primitive before calling Object.defineProperty() on it. We ensure
-      // it is an instance so that it can.
-      if (type === 'string') {
-        rval = String(rval);
-      } else if (type === 'number') {
-        rval = Number(rval);
-      } else if (type === 'boolean') {
-        rval = Boolean(rval);
-      }
-  
-      // Reset the exports to the defined module. This is how we convert AMD to
-      // CommonJS and ensures both can either co-exist, or be used separately. We
-      // only set it if it is not defined because there is no object representation
-      // of undefined, thus calling Object.defineProperty() on it would fail.
-      if (rval !== undefined) {
-        exports = module.exports = rval;
-      }
-    };
-  }("__51b0d085f49d51d53774d7f5b0c57ff9");
-  define.amd = true;
-  
-  (function (global, factory) {
-    if (typeof define === 'function' && define.amd) {
-      define(['exports', 'module'], factory);
-    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-      factory(exports, module);
-    } else {
-      var mod = {
-        exports: {}
-      };
-      factory(mod.exports, mod);
-      global.data = mod.exports;
-    }
-  })(this, function (exports, module) {
-  
-    module.exports = function (element) {
-      var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-  
-      var data = element.__SKATE_DATA || (element.__SKATE_DATA = {});
-      return namespace && (data[namespace] || (data[namespace] = {})) || data;
-    };
-  });
-  
-  return module.exports;
-}).call(this);
-// node_modules/skatejs/lib/api/properties/content.js
-(typeof window === 'undefined' ? global : window).__7ffb3e9e3a69b601d863b246feb95e64 = (function () {
-  var module = {
-    exports: {}
-  };
-  var exports = module.exports;
-  var defineDependencies = {
-    "module": module,
-    "exports": exports,
-    "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
-    "../../util/data": __51b0d085f49d51d53774d7f5b0c57ff9,
-    "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
-    "../../util/data": __51b0d085f49d51d53774d7f5b0c57ff9
-  };
-  var define = function defineReplacementWrapper(generatedModuleName) {
-    return function defineReplacement(name, deps, func) {
-      var root = (typeof window === 'undefined' ? global : window);
-      var defineGlobal = root.define;
-      var rval;
-      var type;
-  
-      func = [func, deps, name].filter(function (cur) {
-        return typeof cur === 'function';
-      })[0];
-      deps = [deps, name, []].filter(Array.isArray)[0];
-      rval = func.apply(null, deps.map(function (value) {
-        return defineDependencies[value];
-      }));
-      type = typeof rval;
-  
-      // Support existing AMD libs.
-      if (typeof defineGlobal === 'function') {
-        // Almond always expects a name so resolve one (#29).
-        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
-      }
-  
-      // Some processors like Babel don't check to make sure that the module value
-      // is not a primitive before calling Object.defineProperty() on it. We ensure
-      // it is an instance so that it can.
-      if (type === 'string') {
-        rval = String(rval);
-      } else if (type === 'number') {
-        rval = Number(rval);
-      } else if (type === 'boolean') {
-        rval = Boolean(rval);
-      }
-  
-      // Reset the exports to the defined module. This is how we convert AMD to
-      // CommonJS and ensures both can either co-exist, or be used separately. We
-      // only set it if it is not defined because there is no object representation
-      // of undefined, thus calling Object.defineProperty() on it would fail.
-      if (rval !== undefined) {
-        exports = module.exports = rval;
-      }
-    };
-  }("__7ffb3e9e3a69b601d863b246feb95e64");
-  define.amd = true;
-  
-  (function (global, factory) {
-    if (typeof define === 'function' && define.amd) {
-      define(['exports', 'module', 'object-assign', '../../util/data'], factory);
-    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-      factory(exports, module, __4523f0e885099697c6f7fc461bcd2ec3, __51b0d085f49d51d53774d7f5b0c57ff9);
-    } else {
-      var mod = {
-        exports: {}
-      };
-      factory(mod.exports, mod, global.assign, global.data);
-      global.content = mod.exports;
-    }
-  })(this, function (exports, module, _objectAssign, _utilData) {
-  
-    function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-  
-    function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-  
-    var _assign = _interopRequireDefault(_objectAssign);
-  
-    var _data = _interopRequireDefault(_utilData);
-  
-    var MutationObserver = window.MutationObserver;
-  
-    if (!MutationObserver) {
-      throw new Error('Usage of the content property requires MutationObserver support.');
-    }
-  
-    // Calls the `change` callback if it's defined.
-    function change(el, cb) {
-      cb = cb || function () {};
-      return function (mo) {
-        cb(el, mo.addedNodes || [], mo.removedNodes || []);
-      };
-    }
-  
-    // Creates a fake node for usage before the element is rendered so that the way
-    // of accessing the value of the content node does not change at any point
-    // during the rendering process. This is basically syntanctic sugar for not
-    // having to do something like:
-    //
-    //     elem.content && elem.content.value
-    //
-    // In your `render` function. Instead, you can just do:
-    //
-    //     elem.content.value
-    //
-    // This is to get around having to know about the implementation details which
-    // vary depending on if we're in native or polyfilled custom element land.
-    function createFakeNode(name) {
-      return Object.defineProperties({}, _defineProperty({}, name, {
-        get: function get() {
-          return null;
-        },
-        configurable: true,
-        enumerable: true
-      }));
-    }
-  
-    // Creates a real node so that the renering process can attach nodes to it. A
-    // property is added
-    function createRealNode(elem, name, selector) {
-      var node = selector ? elem.querySelector(selector) : document.createElement('div');
-      Object.defineProperty(node, name, {
-        get: function get() {
-          var ch = this.childNodes;
-          return ch && ch.length ? [].slice.call(ch) : null;
-        }
-      });
-      return node;
-    }
-  
-    // Sets initial content for the specified node.
-    function init(node, nodes) {
-      for (var a = 0; a < nodes.length; a++) {
-        node.appendChild(nodes[a]);
-      }
-    }
-  
-    module.exports = function () {
-      var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-  
-      opts = (0, _assign['default'])({
-        accessor: 'nodes',
-        change: function change() {},
-        selector: ''
-      }, opts);
-      return {
-        created: function created(el) {
-          var info = (0, _data['default'])(el);
-          info.contentNode = createFakeNode(opts.accessor);
-          info.initialState = [].slice.call(el.childNodes);
-        },
-        get: function get(el) {
-          return (0, _data['default'])(el).contentNode;
-        },
-        ready: function ready(elem) {
-          var info = (0, _data['default'])(elem);
-          var observer = new MutationObserver(change(elem, opts.change));
-          info.contentNode = createRealNode(elem, opts.accessor, opts.selector);
-          init(info.contentNode, info.initialState);
-          observer.observe(info.contentNode, { childList: true });
-        }
-      };
-    };
-  });
-  
-  return module.exports;
-}).call(this);
 // node_modules/skatejs/lib/api/properties/number.js
 (typeof window === 'undefined' ? global : window).__4b267449aa9fd10e83fd7950c8ece7e4 = (function () {
   var module = {
@@ -3485,12 +3238,10 @@
     "exports": exports,
     "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
     "./boolean": __52e99c8621ea6d8ce7f9ae8a541de22f,
-    "./content": __7ffb3e9e3a69b601d863b246feb95e64,
     "./number": __4b267449aa9fd10e83fd7950c8ece7e4,
     "./string": __da6046283709e8c66ec32141278ddf2d,
     "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
     "./boolean": __52e99c8621ea6d8ce7f9ae8a541de22f,
-    "./content": __7ffb3e9e3a69b601d863b246feb95e64,
     "./number": __4b267449aa9fd10e83fd7950c8ece7e4,
     "./string": __da6046283709e8c66ec32141278ddf2d
   };
@@ -3540,25 +3291,23 @@
   
   (function (global, factory) {
     if (typeof define === 'function' && define.amd) {
-      define(['exports', 'module', 'object-assign', './boolean', './content', './number', './string'], factory);
+      define(['exports', 'module', 'object-assign', './boolean', './number', './string'], factory);
     } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-      factory(exports, module, __4523f0e885099697c6f7fc461bcd2ec3, __52e99c8621ea6d8ce7f9ae8a541de22f, __7ffb3e9e3a69b601d863b246feb95e64, __4b267449aa9fd10e83fd7950c8ece7e4, __da6046283709e8c66ec32141278ddf2d);
+      factory(exports, module, __4523f0e885099697c6f7fc461bcd2ec3, __52e99c8621ea6d8ce7f9ae8a541de22f, __4b267449aa9fd10e83fd7950c8ece7e4, __da6046283709e8c66ec32141278ddf2d);
     } else {
       var mod = {
         exports: {}
       };
-      factory(mod.exports, mod, global.assign, global.boolean, global.content, global.number, global.string);
+      factory(mod.exports, mod, global.assign, global.boolean, global.number, global.string);
       global.index = mod.exports;
     }
-  })(this, function (exports, module, _objectAssign, _boolean, _content, _number, _string) {
+  })(this, function (exports, module, _objectAssign, _boolean, _number, _string) {
   
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
     var _assign = _interopRequireDefault(_objectAssign);
   
     var _boolean2 = _interopRequireDefault(_boolean);
-  
-    var _content2 = _interopRequireDefault(_content);
   
     var _number2 = _interopRequireDefault(_number);
   
@@ -3577,9 +3326,86 @@
   
     module.exports = {
       boolean: prop(_boolean2['default']),
-      content: _content2['default'],
       number: prop(_number2['default']),
       string: prop(_string2['default'])
+    };
+  });
+  
+  return module.exports;
+}).call(this);
+// node_modules/skatejs/lib/util/data.js
+(typeof window === 'undefined' ? global : window).__51b0d085f49d51d53774d7f5b0c57ff9 = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  var defineDependencies = {
+    "module": module,
+    "exports": exports
+  };
+  var define = function defineReplacementWrapper(generatedModuleName) {
+    return function defineReplacement(name, deps, func) {
+      var root = (typeof window === 'undefined' ? global : window);
+      var defineGlobal = root.define;
+      var rval;
+      var type;
+  
+      func = [func, deps, name].filter(function (cur) {
+        return typeof cur === 'function';
+      })[0];
+      deps = [deps, name, []].filter(Array.isArray)[0];
+      rval = func.apply(null, deps.map(function (value) {
+        return defineDependencies[value];
+      }));
+      type = typeof rval;
+  
+      // Support existing AMD libs.
+      if (typeof defineGlobal === 'function') {
+        // Almond always expects a name so resolve one (#29).
+        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
+      }
+  
+      // Some processors like Babel don't check to make sure that the module value
+      // is not a primitive before calling Object.defineProperty() on it. We ensure
+      // it is an instance so that it can.
+      if (type === 'string') {
+        rval = String(rval);
+      } else if (type === 'number') {
+        rval = Number(rval);
+      } else if (type === 'boolean') {
+        rval = Boolean(rval);
+      }
+  
+      // Reset the exports to the defined module. This is how we convert AMD to
+      // CommonJS and ensures both can either co-exist, or be used separately. We
+      // only set it if it is not defined because there is no object representation
+      // of undefined, thus calling Object.defineProperty() on it would fail.
+      if (rval !== undefined) {
+        exports = module.exports = rval;
+      }
+    };
+  }("__51b0d085f49d51d53774d7f5b0c57ff9");
+  define.amd = true;
+  
+  (function (global, factory) {
+    if (typeof define === 'function' && define.amd) {
+      define(['exports', 'module'], factory);
+    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+      factory(exports, module);
+    } else {
+      var mod = {
+        exports: {}
+      };
+      factory(mod.exports, mod);
+      global.data = mod.exports;
+    }
+  })(this, function (exports, module) {
+  
+    module.exports = function (element) {
+      var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+  
+      var data = element.__SKATE_DATA || (element.__SKATE_DATA = {});
+      return namespace && (data[namespace] || (data[namespace] = {})) || data;
     };
   });
   
@@ -4707,8 +4533,6 @@
         enumerable: true
       };
   
-      // Custom accessor lifecycle functions.
-  
       prop.created = function (elem, initialValue) {
         var info = (0, _data['default'])(elem, 'api/property/' + name);
         info.linkedAttribute = getLinkedAttribute(name, opts.attribute);
@@ -4768,24 +4592,9 @@
         info.internalValue = initialValue;
   
         if (typeof opts.created === 'function') {
-          opts.created(elem, {
-            name: name,
-            value: initialValue
-          });
+          opts.created(elem, initialValue);
         }
       };
-  
-      prop.ready = function (elem, initialValue) {
-        elem[name] = initialValue;
-        if (typeof opts.ready === 'function') {
-          opts.ready(elem, {
-            name: name,
-            value: initialValue
-          });
-        }
-      };
-  
-      // Native accessor functions.
   
       prop.get = function () {
         var info = (0, _data['default'])(this, 'api/property/' + name);
@@ -4942,6 +4751,7 @@
     function propertiesApply(elem, properties) {
       Object.keys(properties).forEach(function (name) {
         var prop = properties[name];
+        var initialValue = elem[name];
   
         // https://bugs.webkit.org/show_bug.cgi?id=49739
         //
@@ -4957,9 +4767,7 @@
         // Once that bug is fixed, the initial value being passed as the second
         // argument to prop.created() can use the overridden property definition to
         // get the initial value.
-        if (prop.created) {
-          prop.created(elem, elem[name]);
-        }
+        prop.created && prop.created(elem, initialValue);
       });
     }
   });
@@ -5021,9 +4829,9 @@
   define.amd = true;
   
   (function (global, factory) {
-    if (typeof define === 'function' && define.amd) {
-      define(['exports', 'module'], factory);
-    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+    if (typeof define === "function" && define.amd) {
+      define(["exports", "module"], factory);
+    } else if (typeof exports !== "undefined" && typeof module !== "undefined") {
       factory(exports, module);
     } else {
       var mod = {
@@ -5039,9 +4847,7 @@
     function propertiesApply(elem, properties) {
       Object.keys(properties).forEach(function (name) {
         var prop = properties[name];
-        if (typeof prop.ready === 'function') {
-          prop.ready(elem, elem[name]);
-        }
+        prop.set && prop.set.call(elem, elem[name]);
       });
     }
   });
@@ -5636,10 +5442,6 @@
       // Called when the element is created after all descendants have had it
       // called on them.
       created: function created() {},
-  
-      // Responsible for rendering stuff to the host element. This can do anything
-      // you like.
-      render: function render() {},
   
       // Called when the element is detached from the document.
       detached: function detached() {},
