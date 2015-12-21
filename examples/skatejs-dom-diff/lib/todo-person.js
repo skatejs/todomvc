@@ -21,19 +21,19 @@
 
 	module.exports = (0, _skate['default'])('todo-person', {
 		properties: {
+			content: _skate['default'].properties.content({
+				change: _skate['default'].render
+			}),
 			nick: _skate['default'].properties.string({
 				attribute: true,
 				set: _skate['default'].render
-			}),
-			content: {
-				set: _skate['default'].render
-			}
+			})
 		},
 		render: (0, _render['default'])(function (elem, React) {
 			return React.createElement(
 				'a',
 				{ href: 'http://twitter.com/' + elem.nick },
-				elem.content || elem.nick
+				elem.content.nodes || elem.nick
 			);
 		})
 	});

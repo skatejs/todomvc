@@ -257,6 +257,373 @@
   
   return module.exports;
 }).call(this);
+// node_modules/skatejs-dom-diff/node_modules/weakmap/weakmap.js
+(typeof window === 'undefined' ? global : window).__49b0938828243a68d941763eab6fd05f = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  var defineDependencies = {
+    "module": module,
+    "exports": exports
+  };
+  var define = function defineReplacementWrapper(generatedModuleName) {
+    return function defineReplacement(name, deps, func) {
+      var root = (typeof window === 'undefined' ? global : window);
+      var defineGlobal = root.define;
+      var rval;
+      var type;
+  
+      func = [func, deps, name].filter(function (cur) {
+        return typeof cur === 'function';
+      })[0];
+      deps = [deps, name, []].filter(Array.isArray)[0];
+      rval = func.apply(null, deps.map(function (value) {
+        return defineDependencies[value];
+      }));
+      type = typeof rval;
+  
+      // Support existing AMD libs.
+      if (typeof defineGlobal === 'function') {
+        // Almond always expects a name so resolve one (#29).
+        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
+      }
+  
+      // Some processors like Babel don't check to make sure that the module value
+      // is not a primitive before calling Object.defineProperty() on it. We ensure
+      // it is an instance so that it can.
+      if (type === 'string') {
+        rval = String(rval);
+      } else if (type === 'number') {
+        rval = Number(rval);
+      } else if (type === 'boolean') {
+        rval = Boolean(rval);
+      }
+  
+      // Reset the exports to the defined module. This is how we convert AMD to
+      // CommonJS and ensures both can either co-exist, or be used separately. We
+      // only set it if it is not defined because there is no object representation
+      // of undefined, thus calling Object.defineProperty() on it would fail.
+      if (rval !== undefined) {
+        exports = module.exports = rval;
+      }
+    };
+  }("__49b0938828243a68d941763eab6fd05f");
+  define.amd = true;
+  
+  /* (The MIT License)
+   *
+   * Copyright (c) 2012 Brandon Benvie <http://bbenvie.com>
+   *
+   * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+   * associated documentation files (the 'Software'), to deal in the Software without restriction,
+   * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+   * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   *
+   * The above copyright notice and this permission notice shall be included with all copies or
+   * substantial portions of the Software.
+   *
+   * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+   * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  CLAIM,
+   * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   */
+  
+  // Original WeakMap implementation by Gozala @ https://gist.github.com/1269991
+  // Updated and bugfixed by Raynos @ https://gist.github.com/1638059
+  // Expanded by Benvie @ https://github.com/Benvie/harmony-collections
+  
+  void function(global, undefined_, undefined){
+    var getProps = Object.getOwnPropertyNames,
+        defProp  = Object.defineProperty,
+        toSource = Function.prototype.toString,
+        create   = Object.create,
+        hasOwn   = Object.prototype.hasOwnProperty,
+        funcName = /^\n?function\s?(\w*)?_?\(/;
+  
+  
+    function define(object, key, value){
+      if (typeof key === 'function') {
+        value = key;
+        key = nameOf(value).replace(/_$/, '');
+      }
+      return defProp(object, key, { configurable: true, writable: true, value: value });
+    }
+  
+    function nameOf(func){
+      return typeof func !== 'function'
+            ? '' : 'name' in func
+            ? func.name : toSource.call(func).match(funcName)[1];
+    }
+  
+    // ############
+    // ### Data ###
+    // ############
+  
+    var Data = (function(){
+      var dataDesc = { value: { writable: true, value: undefined } },
+          datalock = 'return function(k){if(k===s)return l}',
+          uids     = create(null),
+  
+          createUID = function(){
+            var key = Math.random().toString(36).slice(2);
+            return key in uids ? createUID() : uids[key] = key;
+          },
+  
+          globalID = createUID(),
+  
+          storage = function(obj){
+            if (hasOwn.call(obj, globalID))
+              return obj[globalID];
+  
+            if (!Object.isExtensible(obj))
+              throw new TypeError("Object must be extensible");
+  
+            var store = create(null);
+            defProp(obj, globalID, { value: store });
+            return store;
+          };
+  
+      // common per-object storage area made visible by patching getOwnPropertyNames'
+      define(Object, function getOwnPropertyNames(obj){
+        var props = getProps(obj);
+        if (hasOwn.call(obj, globalID))
+          props.splice(props.indexOf(globalID), 1);
+        return props;
+      });
+  
+      function Data(){
+        var puid = createUID(),
+            secret = {};
+  
+        this.unlock = function(obj){
+          var store = storage(obj);
+          if (hasOwn.call(store, puid))
+            return store[puid](secret);
+  
+          var data = create(null, dataDesc);
+          defProp(store, puid, {
+            value: new Function('s', 'l', datalock)(secret, data)
+          });
+          return data;
+        }
+      }
+  
+      define(Data.prototype, function get(o){ return this.unlock(o).value });
+      define(Data.prototype, function set(o, v){ this.unlock(o).value = v });
+  
+      return Data;
+    }());
+  
+  
+    var WM = (function(data){
+      var validate = function(key){
+        if (key == null || typeof key !== 'object' && typeof key !== 'function')
+          throw new TypeError("Invalid WeakMap key");
+      }
+  
+      var wrap = function(collection, value){
+        var store = data.unlock(collection);
+        if (store.value)
+          throw new TypeError("Object is already a WeakMap");
+        store.value = value;
+      }
+  
+      var unwrap = function(collection){
+        var storage = data.unlock(collection).value;
+        if (!storage)
+          throw new TypeError("WeakMap is not generic");
+        return storage;
+      }
+  
+      var initialize = function(weakmap, iterable){
+        if (iterable !== null && typeof iterable === 'object' && typeof iterable.forEach === 'function') {
+          iterable.forEach(function(item, i){
+            if (item instanceof Array && item.length === 2)
+              set.call(weakmap, iterable[i][0], iterable[i][1]);
+          });
+        }
+      }
+  
+  
+      function WeakMap(iterable){
+        if (this === global || this == null || this === WeakMap.prototype)
+          return new WeakMap(iterable);
+  
+        wrap(this, new Data);
+        initialize(this, iterable);
+      }
+  
+      function get(key){
+        validate(key);
+        var value = unwrap(this).get(key);
+        return value === undefined_ ? undefined : value;
+      }
+  
+      function set(key, value){
+        validate(key);
+        // store a token for explicit undefined so that "has" works correctly
+        unwrap(this).set(key, value === undefined ? undefined_ : value);
+      }
+  
+      function has(key){
+        validate(key);
+        return unwrap(this).get(key) !== undefined;
+      }
+  
+      function delete_(key){
+        validate(key);
+        var data = unwrap(this),
+            had = data.get(key) !== undefined;
+        data.set(key, undefined);
+        return had;
+      }
+  
+      function toString(){
+        unwrap(this);
+        return '[object WeakMap]';
+      }
+  
+      try {
+        var src = ('return '+delete_).replace('e_', '\\u0065'),
+            del = new Function('unwrap', 'validate', src)(unwrap, validate);
+      } catch (e) {
+        var del = delete_;
+      }
+  
+      var src = (''+Object).split('Object');
+      var stringifier = function toString(){
+        return src[0] + nameOf(this) + src[1];
+      };
+  
+      define(stringifier, stringifier);
+  
+      var prep = { __proto__: [] } instanceof Array
+        ? function(f){ f.__proto__ = stringifier }
+        : function(f){ define(f, stringifier) };
+  
+      prep(WeakMap);
+  
+      [toString, get, set, has, del].forEach(function(method){
+        define(WeakMap.prototype, method);
+        prep(method);
+      });
+  
+      return WeakMap;
+    }(new Data));
+  
+    var defaultCreator = Object.create
+      ? function(){ return Object.create(null) }
+      : function(){ return {} };
+  
+    function createStorage(creator){
+      var weakmap = new WM;
+      creator || (creator = defaultCreator);
+  
+      function storage(object, value){
+        if (value || arguments.length === 2) {
+          weakmap.set(object, value);
+        } else {
+          value = weakmap.get(object);
+          if (value === undefined) {
+            value = creator(object);
+            weakmap.set(object, value);
+          }
+        }
+        return value;
+      }
+  
+      return storage;
+    }
+  
+  
+    if (typeof module !== 'undefined') {
+      module.exports = WM;
+    } else if (typeof exports !== 'undefined') {
+      exports.WeakMap = WM;
+    } else if (!('WeakMap' in global)) {
+      global.WeakMap = WM;
+    }
+  
+    WM.createStorage = createStorage;
+    if (global.WeakMap)
+      global.WeakMap.createStorage = createStorage;
+  }((0, eval)('this'));
+  
+  
+  return module.exports;
+}).call(this);
+// node_modules/skatejs-dom-diff/src/util/accessor.js
+(typeof window === 'undefined' ? global : window).__b86ad4b8fb354cab9a20014b48d275fb = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  
+  'use strict';
+  
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
+  exports.getAccessor = getAccessor;
+  exports.mapAccessor = mapAccessor;
+  exports.removeAccessor = removeAccessor;
+  exports.setAccessor = setAccessor;
+  
+  function getAccessor(node, name) {
+    if (name === 'class') {
+      return node.className;
+    } else if (name === 'style') {
+      return node.style.cssText;
+    } else if (name !== 'type' && name in node) {
+      return node[name];
+    } else if (node.getAttribute) {
+      return node.getAttribute(name);
+    } else if (node.attributes && node.attributes[name]) {
+      return node.attributes[name].value;
+    }
+  }
+  
+  function mapAccessor(node, name, value) {
+    if (name === 'class') {
+      node.className = value;
+    } else if (name === 'style') {
+      node.style = { cssText: value };
+    }
+  }
+  
+  function removeAccessor(node, name) {
+    if (name === 'class') {
+      node.className = '';
+    } else if (name === 'style') {
+      node.style.cssText = '';
+    } else if (name !== 'type' && name in node) {
+      node[name] = '';
+    } else if (node.removeAttribute) {
+      node.removeAttribute(name);
+    } else if (node.attributes) {
+      delete node.attributes[name];
+    }
+  }
+  
+  function setAccessor(node, name, value) {
+    if (name === 'class') {
+      node.className = value;
+    } else if (name === 'style') {
+      node.style.cssText = value;
+    } else if (name !== 'type' && name in node) {
+      node[name] = value;
+    } else if (node.setAttribute) {
+      node.setAttribute(name, value);
+    } else if (node.attributes) {
+      node.attributes[node.attributes.length] = node.attributes[name] = { name: name, value: value };
+    }
+  }
+  
+  return module.exports;
+}).call(this);
 // node_modules/skatejs-dom-diff/src/vdom/text.js
 (typeof window === 'undefined' ? global : window).__bda6929c930adc39ea57e9d09377a13d = (function () {
   var module = {
@@ -297,6 +664,8 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  var _utilAccessor = __b86ad4b8fb354cab9a20014b48d275fb;
+  
   var _text = __bda6929c930adc39ea57e9d09377a13d;
   
   var _text2 = _interopRequireDefault(_text);
@@ -304,23 +673,22 @@
   function separateData(obj) {
     var attrs = {};
     var events = {};
-    var props = {};
+    var node = {};
     var attrIdx = 0;
   
     for (var _name in obj) {
       var value = obj[_name];
   
-      if (typeof value === 'string') {
-        attrs[attrIdx++] = attrs[_name] = { name: _name, value: value };
-      } else if (_name.indexOf('on') === 0) {
+      if (_name.indexOf('on') === 0) {
         events[_name.substring(2)] = value;
       } else {
-        props[_name] = value;
+        attrs[attrIdx++] = attrs[_name] = { name: _name, value: value };
+        (0, _utilAccessor.mapAccessor)(node, _name, value);
       }
     }
   
     attrs.length = attrIdx;
-    return { attrs: attrs, events: events, props: props };
+    return { attrs: attrs, events: events, node: node };
   }
   
   function ensureNodes(arr) {
@@ -345,19 +713,18 @@
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
   
     var data = separateData(attrs);
+    var node = data.node;
+    node.nodeType = 1;
+    node.tagName = ensureTagName(name);
+    node.attributes = data.attrs;
+    node.events = data.events;
   
     for (var _len = arguments.length, chren = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
       chren[_key - 2] = arguments[_key];
     }
   
-    return {
-      nodeType: 1,
-      tagName: ensureTagName(name),
-      attributes: data.attrs,
-      events: data.events,
-      properties: data.props,
-      childNodes: ensureNodes(chren)
-    };
+    node.childNodes = ensureNodes(chren);
+    return node;
   };
   
   module.exports = exports['default'];
@@ -414,6 +781,8 @@
   
   var types = _interopRequireWildcard(_types);
   
+  var _utilAccessor = __b86ad4b8fb354cab9a20014b48d275fb;
+  
   exports['default'] = function (src, dst) {
     var srcAttrs = src.attributes;
     var dstAttrs = dst.attributes;
@@ -429,18 +798,21 @@
     // Merge attributes that exist in source with destination's.
     for (var a = 0; a < srcAttrsLen; a++) {
       var srcAttr = srcAttrs[a];
-      var dstAttr = dstAttrs[srcAttr.name];
+      var srcAttrName = srcAttr.name;
+      var srcAttrValue = (0, _utilAccessor.getAccessor)(src, srcAttrName);
+      var dstAttr = dstAttrs[srcAttrName];
+      var dstAttrValue = (0, _utilAccessor.getAccessor)(dst, srcAttrName);
   
       if (!dstAttr) {
         instructions.push({
-          data: { name: srcAttr.name },
+          data: { name: srcAttrName },
           destination: dst,
           source: src,
           type: types.REMOVE_ATTRIBUTE
         });
-      } else if (srcAttr.value !== dstAttr.value) {
+      } else if (srcAttrValue !== dstAttrValue) {
         instructions.push({
-          data: { name: srcAttr.name, value: dstAttr.value },
+          data: { name: srcAttrName, value: dstAttrValue },
           destination: dst,
           source: src,
           type: types.SET_ATTRIBUTE
@@ -452,11 +824,13 @@
     // in the source.
     for (var a = 0; a < dstAttrsLen; a++) {
       var dstAttr = dstAttrs[a];
-      var srcAttr = srcAttrs[dstAttr.name];
+      var dstAttrName = dstAttr.name;
+      var dstAttrValue = (0, _utilAccessor.getAccessor)(dst, dstAttrName);
+      var srcAttr = srcAttrs[dstAttrName];
   
       if (!srcAttr) {
         instructions.push({
-          data: { name: dstAttr.name, value: dstAttr.value },
+          data: { name: dstAttrName, value: dstAttrValue },
           destination: dst,
           source: src,
           type: types.SET_ATTRIBUTE
@@ -465,6 +839,35 @@
     }
   
     return instructions;
+  };
+  
+  module.exports = exports['default'];
+  
+  return module.exports;
+}).call(this);
+// node_modules/skatejs-dom-diff/src/util/event-map.js
+(typeof window === 'undefined' ? global : window).__fee4ace635cf8f97f366b4ebde70afce = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  
+  'use strict';
+  
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
+  
+  __49b0938828243a68d941763eab6fd05f;
+  
+  var WeakMap = window.WeakMap;
+  
+  var map = new WeakMap();
+  
+  exports['default'] = function (elem) {
+    var events = map.get(elem);
+    events || map.set(elem, events = {});
+    return events;
   };
   
   module.exports = exports['default'];
@@ -484,28 +887,29 @@
     value: true
   });
   
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+  
   function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
   
   var _types = __613e9d611f12ca908b7368a65ec61c39;
   
   var types = _interopRequireWildcard(_types);
   
+  var _utilEventMap = __fee4ace635cf8f97f366b4ebde70afce;
+  
+  var _utilEventMap2 = _interopRequireDefault(_utilEventMap);
+  
   exports['default'] = function (src, dst) {
+    var eventHandlers = (0, _utilEventMap2['default'])(src);
     var dstEvents = dst.events;
     var instructions = [];
   
-    if (!dstEvents) {
-      return instructions;
-    }
-  
-    for (var a in dstEvents) {
-      var dstEvent = dstEvents[a];
-  
-      // Hack, as stated elsewhere, but we need to refer to the old event
-      // handler. We only want to apply a patch if it's changed.
-      if (src['__events_' + a] !== dstEvent) {
+    // Remove all handlers not being set.
+    for (var _name in eventHandlers) {
+      if (!(_name in dstEvents)) {
+        var value = null;
         instructions.push({
-          data: { name: a, value: dstEvent },
+          data: { name: _name, value: value },
           destination: dst,
           source: src,
           type: types.SET_EVENT
@@ -513,55 +917,18 @@
       }
     }
   
-    return instructions;
-  };
-  
-  module.exports = exports['default'];
-  
-  return module.exports;
-}).call(this);
-// node_modules/skatejs-dom-diff/src/compare/properties.js
-(typeof window === 'undefined' ? global : window).__86c45fbc7ebe098ad47da5780481c8a8 = (function () {
-  var module = {
-    exports: {}
-  };
-  var exports = module.exports;
-  
-  'use strict';
-  
-  Object.defineProperty(exports, '__esModule', {
-    value: true
-  });
-  
-  function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-  
-  var _types = __613e9d611f12ca908b7368a65ec61c39;
-  
-  var types = _interopRequireWildcard(_types);
-  
-  exports['default'] = function (src, dst) {
-    // We only use destination prop specs since it could be a vDOM.
-    var srcProps = src.properties || src;
-    var dstProps = dst.properties;
-    var instructions = [];
-  
-    // Bail early if possible.
-    if (!dstProps) {
-      return instructions;
-    }
-  
-    // We use the destination prop spec as the source of truth.
-    for (var a in dstProps) {
-      var srcProp = srcProps[a];
-      var dstProp = dstProps[a];
-  
-      if (srcProp !== dstProp) {
-        instructions.push({
-          data: { name: a, value: dstProp },
-          destination: dst,
-          source: src,
-          type: types.SET_PROPERTY
-        });
+    // Add new handlers, not changing existing ones.
+    if (dstEvents) {
+      for (var _name2 in dstEvents) {
+        var value = dstEvents[_name2];
+        if (eventHandlers[_name2] !== value) {
+          instructions.push({
+            data: { name: _name2, value: value },
+            destination: dst,
+            source: src,
+            type: types.SET_EVENT
+          });
+        }
       }
     }
   
@@ -595,13 +962,9 @@
   
   var _events2 = _interopRequireDefault(_events);
   
-  var _properties = __86c45fbc7ebe098ad47da5780481c8a8;
-  
-  var _properties2 = _interopRequireDefault(_properties);
-  
   exports['default'] = function (src, dst) {
     if (src.tagName === dst.tagName) {
-      return (0, _attributes2['default'])(src, dst).concat((0, _events2['default'])(src, dst)).concat((0, _properties2['default'])(src, dst));
+      return (0, _attributes2['default'])(src, dst).concat((0, _events2['default'])(src, dst));
     }
   };
   
@@ -725,6 +1088,56 @@
   
   return module.exports;
 }).call(this);
+// node_modules/skatejs-dom-diff/src/util/real-node-map.js
+(typeof window === 'undefined' ? global : window).__5caa9b248c4484a17e6a232bac6e4b8b = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  
+  'use strict';
+  
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
+  
+  __49b0938828243a68d941763eab6fd05f;
+  
+  var WeakMap = window.WeakMap;
+  exports['default'] = new WeakMap();
+  module.exports = exports['default'];
+  
+  return module.exports;
+}).call(this);
+// node_modules/skatejs-dom-diff/src/util/real-node.js
+(typeof window === 'undefined' ? global : window).__5850cfd1a1665c1f1aff3386886685a9 = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  
+  'use strict';
+  
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
+  
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+  
+  var _realNodeMap = __5caa9b248c4484a17e6a232bac6e4b8b;
+  
+  var _realNodeMap2 = _interopRequireDefault(_realNodeMap);
+  
+  var Node = window.Node;
+  
+  exports['default'] = function (node) {
+    return node instanceof Node ? node : _realNodeMap2['default'].get(node);
+  };
+  
+  module.exports = exports['default'];
+  
+  return module.exports;
+}).call(this);
 // node_modules/skatejs-dom-diff/src/diff.js
 (typeof window === 'undefined' ? global : window).__03be74d19b8d4233376e0725537558b8 = (function () {
   var module = {
@@ -750,6 +1163,14 @@
   var _compareNode = __fe81529cc14b42317ebdfcb00d4632c9;
   
   var _compareNode2 = _interopRequireDefault(_compareNode);
+  
+  var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
+  
+  var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
+  
+  var _utilRealNodeMap = __5caa9b248c4484a17e6a232bac6e4b8b;
+  
+  var _utilRealNodeMap2 = _interopRequireDefault(_utilRealNodeMap);
   
   function diff() {
     var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -784,7 +1205,9 @@
         // Ensure the real node is carried over even if the destination isn't used.
         // This is used in the render() function to keep track of the real node
         // that corresponds to a virtual node if a virtual tree is being used.
-        curDst.__realNode = curSrc.__realNode;
+        if (!(curDst instanceof Node)) {
+          _utilRealNodeMap2['default'].set(curDst, (0, _utilRealNode2['default'])(curSrc));
+        }
       }
   
       var nodeInstructions = (0, _compareNode2['default'])(curSrc, curDst);
@@ -824,6 +1247,37 @@
   
   return module.exports;
 }).call(this);
+// node_modules/skatejs-dom-diff/src/util/content-node.js
+(typeof window === 'undefined' ? global : window).__f780a6c6e3166cea6387365bdd3717a7 = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  
+  'use strict';
+  
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
+  
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+  
+  var _realNode = __5850cfd1a1665c1f1aff3386886685a9;
+  
+  var _realNode2 = _interopRequireDefault(_realNode);
+  
+  var Node = window.Node;
+  
+  exports['default'] = function (node) {
+    var tmp = (0, _realNode2['default'])(node);
+    var contentNode = tmp.content;
+    return contentNode instanceof Node ? contentNode : tmp;
+  };
+  
+  module.exports = exports['default'];
+  
+  return module.exports;
+}).call(this);
 // node_modules/skatejs-dom-diff/src/vdom/dom.js
 (typeof window === 'undefined' ? global : window).__23087f4c6274c7e9c8e8ad1c398ff8a3 = (function () {
   var module = {
@@ -837,67 +1291,52 @@
     value: true
   });
   exports['default'] = render;
+  
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+  
+  var _utilAccessor = __b86ad4b8fb354cab9a20014b48d275fb;
+  
+  var _utilEventMap = __fee4ace635cf8f97f366b4ebde70afce;
+  
+  var _utilEventMap2 = _interopRequireDefault(_utilEventMap);
+  
+  var _utilRealNodeMap = __5caa9b248c4484a17e6a232bac6e4b8b;
+  
+  var _utilRealNodeMap2 = _interopRequireDefault(_utilRealNodeMap);
+  
   function createElement(el) {
     var realNode = document.createElement(el.tagName);
     var attributes = el.attributes;
     var events = el.events;
-    var properties = el.properties;
+    var eventHandlers = (0, _utilEventMap2['default'])(realNode);
+    var children = el.childNodes;
   
     if (attributes) {
       var attributesLen = attributes.length;
       for (var a = 0; a < attributesLen; a++) {
         var attr = attributes[a];
-        var _name = attr.name;
-        var value = attr.value;
-        realNode.setAttribute(_name, value);
+        (0, _utilAccessor.setAccessor)(realNode, attr.name, attr.value);
       }
     }
   
     if (events) {
-      for (var _name2 in events) {
-        var handler = events[_name2];
-        if (typeof handler === 'function') {
-          // This is a hack, but there's no way to get a handler for a specific
-          // event bound to an element so we have to store the handler on it so
-          // that the patcher can later unbind it when setting a new event
-          // listener when / if the value changes.
-          realNode['__events_' + _name2] = handler;
-          realNode.addEventListener(_name2, handler);
-        }
+      for (var _name in events) {
+        realNode.addEventListener(_name, eventHandlers[_name] = events[_name]);
       }
     }
   
-    if (properties) {
-      for (var _name3 in properties) {
-        var value = properties[_name3];
-        if (_name3 === 'content') {
-          if (Array.isArray(value)) {
-            value.forEach(function (ch) {
-              return realNode.appendChild(render(ch));
-            });
-          } else {
-            realNode.appendChild(render(value));
-          }
-        } else if (typeof value !== 'undefined') {
-          realNode[_name3] = value;
-        }
-      }
-    }
+    if (children) {
+      var content = realNode.content || realNode;
+      var docfrag = document.createDocumentFragment();
+      var childrenLen = children.length;
   
-    if (el.childNodes) {
-      var frag = document.createDocumentFragment();
-  
-      for (var a = 0; a < el.childNodes.length; a++) {
-        var ch = el.childNodes[a];
-        if (ch) {
-          frag.appendChild(render(ch));
-        }
+      for (var a = 0; a < childrenLen; a++) {
+        var ch = children[a];
+        ch && docfrag.appendChild(render(ch));
       }
   
-      if (realNode.hasOwnProperty('content')) {
-        realNode.content = frag;
-      } else {
-        realNode.appendChild(frag);
+      if (content.appendChild) {
+        content.appendChild(docfrag);
       }
     }
   
@@ -913,31 +1352,11 @@
       return el;
     }
     var realNode = el.tagName ? createElement(el) : createText(el);
-    return el.__realNode = realNode;
+    _utilRealNodeMap2['default'].set(el, realNode);
+    return realNode;
   }
   
   module.exports = exports['default'];
-  
-  return module.exports;
-}).call(this);
-// node_modules/skatejs-dom-diff/src/util/real-node.js
-(typeof window === 'undefined' ? global : window).__5850cfd1a1665c1f1aff3386886685a9 = (function () {
-  var module = {
-    exports: {}
-  };
-  var exports = module.exports;
-  
-  "use strict";
-  
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  
-  exports["default"] = function (node) {
-    return node instanceof Node ? node : node.__realNode;
-  };
-  
-  module.exports = exports["default"];
   
   return module.exports;
 }).call(this);
@@ -956,16 +1375,16 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  var _utilContentNode = __f780a6c6e3166cea6387365bdd3717a7;
+  
+  var _utilContentNode2 = _interopRequireDefault(_utilContentNode);
+  
   var _vdomDom = __23087f4c6274c7e9c8e8ad1c398ff8a3;
   
   var _vdomDom2 = _interopRequireDefault(_vdomDom);
   
-  var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
-  
-  var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
-  
   exports['default'] = function (src, dst) {
-    (0, _utilRealNode2['default'])(src).appendChild((0, _vdomDom2['default'])(dst));
+    (0, _utilContentNode2['default'])(src).appendChild((0, _vdomDom2['default'])(dst));
   };
   
   module.exports = exports['default'];
@@ -987,13 +1406,14 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  var _utilAccessor = __b86ad4b8fb354cab9a20014b48d275fb;
+  
   var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
   
   var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
   
   exports['default'] = function (src, dst, data) {
-    var node = (0, _utilRealNode2['default'])(src);
-    node.removeAttribute(data.name);
+    (0, _utilAccessor.removeAccessor)((0, _utilRealNode2['default'])(src), data.name);
   };
   
   module.exports = exports['default'];
@@ -1052,8 +1472,8 @@
   var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
   
   exports['default'] = function (src, dst) {
-    var realNodeSrc = (0, _utilRealNode2['default'])(src);
-    realNodeSrc && realNodeSrc.parentNode && realNodeSrc.parentNode.replaceChild((0, _vdomDom2['default'])(dst), realNodeSrc);
+    var realSrc = (0, _utilRealNode2['default'])(src);
+    realSrc && realSrc.parentNode && realSrc.parentNode.replaceChild((0, _vdomDom2['default'])(dst), realSrc);
   };
   
   module.exports = exports['default'];
@@ -1075,13 +1495,14 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  var _utilAccessor = __b86ad4b8fb354cab9a20014b48d275fb;
+  
   var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
   
   var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
   
   exports['default'] = function (src, dst, data) {
-    var node = (0, _utilRealNode2['default'])(src);
-    node.setAttribute(data.name, data.value);
+    (0, _utilAccessor.setAccessor)((0, _utilRealNode2['default'])(src), data.name, data.value);
   };
   
   module.exports = exports['default'];
@@ -1103,49 +1524,29 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  var _utilEventMap = __fee4ace635cf8f97f366b4ebde70afce;
+  
+  var _utilEventMap2 = _interopRequireDefault(_utilEventMap);
+  
   var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
   
   var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
   
   exports['default'] = function (src, dst, data) {
-    var node = (0, _utilRealNode2['default'])(src);
+    var realSrc = (0, _utilRealNode2['default'])(src);
+    var eventHandlers = (0, _utilEventMap2['default'])(realSrc);
     var name = data.name;
-    var func = data.value;
+    var prevHandler = eventHandlers[name];
+    var nextHandler = data.value;
   
-    // This is a hack as described in the vDOM -> DOM creation function but we
-    // need to be able to unbind the previous event handler otherwise events may
-    // stack causing major issues.
-    var temp = '__events_' + name;
-    node.removeEventListener(name, node[temp]);
-    node.addEventListener(name, node[temp] = func);
-  };
+    if (typeof prevHandler === 'function') {
+      realSrc.removeEventListener(name, prevHandler);
+    }
   
-  module.exports = exports['default'];
-  
-  return module.exports;
-}).call(this);
-// node_modules/skatejs-dom-diff/src/patch/set-property.js
-(typeof window === 'undefined' ? global : window).__579fdb8bb5e7838e1736a09d1d91deab = (function () {
-  var module = {
-    exports: {}
-  };
-  var exports = module.exports;
-  
-  'use strict';
-  
-  Object.defineProperty(exports, '__esModule', {
-    value: true
-  });
-  
-  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-  
-  var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
-  
-  var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
-  
-  exports['default'] = function (src, dst, data) {
-    var node = (0, _utilRealNode2['default'])(src);
-    node[data.name] = data.value;
+    if (typeof nextHandler === 'function') {
+      eventHandlers[name] = nextHandler;
+      realSrc.addEventListener(name, nextHandler);
+    }
   };
   
   module.exports = exports['default'];
@@ -1167,12 +1568,12 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
-  var _utilRealNode = __5850cfd1a1665c1f1aff3386886685a9;
+  var _utilContentNode = __f780a6c6e3166cea6387365bdd3717a7;
   
-  var _utilRealNode2 = _interopRequireDefault(_utilRealNode);
+  var _utilContentNode2 = _interopRequireDefault(_utilContentNode);
   
   exports['default'] = function (src, dst) {
-    (0, _utilRealNode2['default'])(src).textContent = dst.textContent;
+    (0, _utilContentNode2['default'])(src).textContent = dst.textContent;
   };
   
   module.exports = exports['default'];
@@ -1224,10 +1625,6 @@
   
   var _patchSetEvent2 = _interopRequireDefault(_patchSetEvent);
   
-  var _patchSetProperty = __579fdb8bb5e7838e1736a09d1d91deab;
-  
-  var _patchSetProperty2 = _interopRequireDefault(_patchSetProperty);
-  
   var _patchTextContent = __296274040d64a1b9ebd1e4a91028b6f9;
   
   var _patchTextContent2 = _interopRequireDefault(_patchTextContent);
@@ -1239,7 +1636,6 @@
   patchers[types.REPLACE_CHILD] = _patchReplaceChild2['default'];
   patchers[types.SET_ATTRIBUTE] = _patchSetAttribute2['default'];
   patchers[types.SET_EVENT] = _patchSetEvent2['default'];
-  patchers[types.SET_PROPERTY] = _patchSetProperty2['default'];
   patchers[types.TEXT_CONTENT] = _patchTextContent2['default'];
   
   function patch(instruction) {
@@ -1302,13 +1698,20 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  var _utilContentNode = __f780a6c6e3166cea6387365bdd3717a7;
+  
+  var _utilContentNode2 = _interopRequireDefault(_utilContentNode);
+  
   var _dom = __23087f4c6274c7e9c8e8ad1c398ff8a3;
   
   var _dom2 = _interopRequireDefault(_dom);
   
   exports['default'] = function (elem, tree) {
-    while (elem.firstChild) elem.firstChild.remove();
-    elem.appendChild((0, _dom2['default'])(tree));
+    var content = (0, _utilContentNode2['default'])(elem) || elem;
+    while (content.firstChild) {
+      content.firstChild.remove();
+    }
+    content.appendChild((0, _dom2['default'])(tree));
   };
   
   module.exports = exports['default'];
@@ -1330,6 +1733,8 @@
   
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
+  __49b0938828243a68d941763eab6fd05f;
+  
   var _vdomElement = __602d7417d4e09c5c189e16eb3e55eb08;
   
   var _vdomElement2 = _interopRequireDefault(_vdomElement);
@@ -1343,6 +1748,9 @@
   var _vdomMount2 = _interopRequireDefault(_vdomMount);
   
   var Node = window.Node;
+  var WeakMap = window.WeakMap;
+  
+  var oldTreeMap = new WeakMap();
   
   exports['default'] = function (render) {
     return function (elem) {
@@ -1354,15 +1762,18 @@
   
       // Create a new element to house the new tree since we diff fragments.
       var newTree = (0, _vdomElement2['default'])('div', null, render(elem, { createElement: _vdomElement2['default'] }));
-      if (elem.__oldTree) {
+      var oldTree = oldTreeMap.get(elem);
+  
+      if (oldTree) {
         (0, _merge2['default'])({
           destination: newTree,
-          source: elem.__oldTree
+          source: oldTree
         });
       } else {
         (0, _vdomMount2['default'])(elem, newTree.childNodes[0]);
       }
-      elem.__oldTree = newTree;
+  
+      oldTreeMap.set(elem, newTree);
     };
   };
   
@@ -2652,6 +3063,251 @@
   
   return module.exports;
 }).call(this);
+// node_modules/skatejs/lib/util/data.js
+(typeof window === 'undefined' ? global : window).__51b0d085f49d51d53774d7f5b0c57ff9 = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  var defineDependencies = {
+    "module": module,
+    "exports": exports
+  };
+  var define = function defineReplacementWrapper(generatedModuleName) {
+    return function defineReplacement(name, deps, func) {
+      var root = (typeof window === 'undefined' ? global : window);
+      var defineGlobal = root.define;
+      var rval;
+      var type;
+  
+      func = [func, deps, name].filter(function (cur) {
+        return typeof cur === 'function';
+      })[0];
+      deps = [deps, name, []].filter(Array.isArray)[0];
+      rval = func.apply(null, deps.map(function (value) {
+        return defineDependencies[value];
+      }));
+      type = typeof rval;
+  
+      // Support existing AMD libs.
+      if (typeof defineGlobal === 'function') {
+        // Almond always expects a name so resolve one (#29).
+        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
+      }
+  
+      // Some processors like Babel don't check to make sure that the module value
+      // is not a primitive before calling Object.defineProperty() on it. We ensure
+      // it is an instance so that it can.
+      if (type === 'string') {
+        rval = String(rval);
+      } else if (type === 'number') {
+        rval = Number(rval);
+      } else if (type === 'boolean') {
+        rval = Boolean(rval);
+      }
+  
+      // Reset the exports to the defined module. This is how we convert AMD to
+      // CommonJS and ensures both can either co-exist, or be used separately. We
+      // only set it if it is not defined because there is no object representation
+      // of undefined, thus calling Object.defineProperty() on it would fail.
+      if (rval !== undefined) {
+        exports = module.exports = rval;
+      }
+    };
+  }("__51b0d085f49d51d53774d7f5b0c57ff9");
+  define.amd = true;
+  
+  (function (global, factory) {
+    if (typeof define === 'function' && define.amd) {
+      define(['exports', 'module'], factory);
+    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+      factory(exports, module);
+    } else {
+      var mod = {
+        exports: {}
+      };
+      factory(mod.exports, mod);
+      global.data = mod.exports;
+    }
+  })(this, function (exports, module) {
+  
+    module.exports = function (element) {
+      var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+  
+      var data = element.__SKATE_DATA || (element.__SKATE_DATA = {});
+      return namespace && (data[namespace] || (data[namespace] = {})) || data;
+    };
+  });
+  
+  return module.exports;
+}).call(this);
+// node_modules/skatejs/lib/api/properties/content.js
+(typeof window === 'undefined' ? global : window).__7ffb3e9e3a69b601d863b246feb95e64 = (function () {
+  var module = {
+    exports: {}
+  };
+  var exports = module.exports;
+  var defineDependencies = {
+    "module": module,
+    "exports": exports,
+    "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
+    "../../util/data": __51b0d085f49d51d53774d7f5b0c57ff9,
+    "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
+    "../../util/data": __51b0d085f49d51d53774d7f5b0c57ff9
+  };
+  var define = function defineReplacementWrapper(generatedModuleName) {
+    return function defineReplacement(name, deps, func) {
+      var root = (typeof window === 'undefined' ? global : window);
+      var defineGlobal = root.define;
+      var rval;
+      var type;
+  
+      func = [func, deps, name].filter(function (cur) {
+        return typeof cur === 'function';
+      })[0];
+      deps = [deps, name, []].filter(Array.isArray)[0];
+      rval = func.apply(null, deps.map(function (value) {
+        return defineDependencies[value];
+      }));
+      type = typeof rval;
+  
+      // Support existing AMD libs.
+      if (typeof defineGlobal === 'function') {
+        // Almond always expects a name so resolve one (#29).
+        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
+      }
+  
+      // Some processors like Babel don't check to make sure that the module value
+      // is not a primitive before calling Object.defineProperty() on it. We ensure
+      // it is an instance so that it can.
+      if (type === 'string') {
+        rval = String(rval);
+      } else if (type === 'number') {
+        rval = Number(rval);
+      } else if (type === 'boolean') {
+        rval = Boolean(rval);
+      }
+  
+      // Reset the exports to the defined module. This is how we convert AMD to
+      // CommonJS and ensures both can either co-exist, or be used separately. We
+      // only set it if it is not defined because there is no object representation
+      // of undefined, thus calling Object.defineProperty() on it would fail.
+      if (rval !== undefined) {
+        exports = module.exports = rval;
+      }
+    };
+  }("__7ffb3e9e3a69b601d863b246feb95e64");
+  define.amd = true;
+  
+  (function (global, factory) {
+    if (typeof define === 'function' && define.amd) {
+      define(['exports', 'module', 'object-assign', '../../util/data'], factory);
+    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+      factory(exports, module, __4523f0e885099697c6f7fc461bcd2ec3, __51b0d085f49d51d53774d7f5b0c57ff9);
+    } else {
+      var mod = {
+        exports: {}
+      };
+      factory(mod.exports, mod, global.assign, global.data);
+      global.content = mod.exports;
+    }
+  })(this, function (exports, module, _objectAssign, _utilData) {
+  
+    function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+  
+    function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+  
+    var _assign = _interopRequireDefault(_objectAssign);
+  
+    var _data = _interopRequireDefault(_utilData);
+  
+    var MutationObserver = window.MutationObserver;
+  
+    if (!MutationObserver) {
+      throw new Error('Usage of the content property requires MutationObserver support.');
+    }
+  
+    // Calls the `change` callback if it's defined.
+    function change(el, cb) {
+      cb = cb || function () {};
+      return function (mo) {
+        cb(el, mo.addedNodes || [], mo.removedNodes || []);
+      };
+    }
+  
+    // Creates a fake node for usage before the element is rendered so that the way
+    // of accessing the value of the content node does not change at any point
+    // during the rendering process. This is basically syntanctic sugar for not
+    // having to do something like:
+    //
+    //     elem.content && elem.content.value
+    //
+    // In your `render` function. Instead, you can just do:
+    //
+    //     elem.content.value
+    //
+    // This is to get around having to know about the implementation details which
+    // vary depending on if we're in native or polyfilled custom element land.
+    function createFakeNode(name) {
+      return Object.defineProperties({}, _defineProperty({}, name, {
+        get: function get() {
+          return null;
+        },
+        configurable: true,
+        enumerable: true
+      }));
+    }
+  
+    // Creates a real node so that the renering process can attach nodes to it. A
+    // property is added
+    function createRealNode(elem, name, selector) {
+      var node = selector ? elem.querySelector(selector) : document.createElement('div');
+      Object.defineProperty(node, name, {
+        get: function get() {
+          var ch = this.childNodes;
+          return ch && ch.length ? [].slice.call(ch) : null;
+        }
+      });
+      return node;
+    }
+  
+    // Sets initial content for the specified node.
+    function init(node, nodes) {
+      for (var a = 0; a < nodes.length; a++) {
+        node.appendChild(nodes[a]);
+      }
+    }
+  
+    module.exports = function () {
+      var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  
+      opts = (0, _assign['default'])({
+        accessor: 'nodes',
+        change: function change() {},
+        selector: ''
+      }, opts);
+      return {
+        created: function created(el) {
+          var info = (0, _data['default'])(el);
+          info.contentNode = createFakeNode(opts.accessor);
+          info.initialState = [].slice.call(el.childNodes);
+        },
+        get: function get(el) {
+          return (0, _data['default'])(el).contentNode;
+        },
+        ready: function ready(elem) {
+          var info = (0, _data['default'])(elem);
+          var observer = new MutationObserver(change(elem, opts.change));
+          info.contentNode = createRealNode(elem, opts.accessor, opts.selector);
+          init(info.contentNode, info.initialState);
+          observer.observe(info.contentNode, { childList: true });
+        }
+      };
+    };
+  });
+  
+  return module.exports;
+}).call(this);
 // node_modules/skatejs/lib/api/properties/number.js
 (typeof window === 'undefined' ? global : window).__4b267449aa9fd10e83fd7950c8ece7e4 = (function () {
   var module = {
@@ -2829,10 +3485,12 @@
     "exports": exports,
     "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
     "./boolean": __52e99c8621ea6d8ce7f9ae8a541de22f,
+    "./content": __7ffb3e9e3a69b601d863b246feb95e64,
     "./number": __4b267449aa9fd10e83fd7950c8ece7e4,
     "./string": __da6046283709e8c66ec32141278ddf2d,
     "object-assign": __4523f0e885099697c6f7fc461bcd2ec3,
     "./boolean": __52e99c8621ea6d8ce7f9ae8a541de22f,
+    "./content": __7ffb3e9e3a69b601d863b246feb95e64,
     "./number": __4b267449aa9fd10e83fd7950c8ece7e4,
     "./string": __da6046283709e8c66ec32141278ddf2d
   };
@@ -2882,23 +3540,25 @@
   
   (function (global, factory) {
     if (typeof define === 'function' && define.amd) {
-      define(['exports', 'module', 'object-assign', './boolean', './number', './string'], factory);
+      define(['exports', 'module', 'object-assign', './boolean', './content', './number', './string'], factory);
     } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-      factory(exports, module, __4523f0e885099697c6f7fc461bcd2ec3, __52e99c8621ea6d8ce7f9ae8a541de22f, __4b267449aa9fd10e83fd7950c8ece7e4, __da6046283709e8c66ec32141278ddf2d);
+      factory(exports, module, __4523f0e885099697c6f7fc461bcd2ec3, __52e99c8621ea6d8ce7f9ae8a541de22f, __7ffb3e9e3a69b601d863b246feb95e64, __4b267449aa9fd10e83fd7950c8ece7e4, __da6046283709e8c66ec32141278ddf2d);
     } else {
       var mod = {
         exports: {}
       };
-      factory(mod.exports, mod, global.assign, global.boolean, global.number, global.string);
+      factory(mod.exports, mod, global.assign, global.boolean, global.content, global.number, global.string);
       global.index = mod.exports;
     }
-  })(this, function (exports, module, _objectAssign, _boolean, _number, _string) {
+  })(this, function (exports, module, _objectAssign, _boolean, _content, _number, _string) {
   
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
   
     var _assign = _interopRequireDefault(_objectAssign);
   
     var _boolean2 = _interopRequireDefault(_boolean);
+  
+    var _content2 = _interopRequireDefault(_content);
   
     var _number2 = _interopRequireDefault(_number);
   
@@ -2917,86 +3577,9 @@
   
     module.exports = {
       boolean: prop(_boolean2['default']),
+      content: _content2['default'],
       number: prop(_number2['default']),
       string: prop(_string2['default'])
-    };
-  });
-  
-  return module.exports;
-}).call(this);
-// node_modules/skatejs/lib/util/data.js
-(typeof window === 'undefined' ? global : window).__51b0d085f49d51d53774d7f5b0c57ff9 = (function () {
-  var module = {
-    exports: {}
-  };
-  var exports = module.exports;
-  var defineDependencies = {
-    "module": module,
-    "exports": exports
-  };
-  var define = function defineReplacementWrapper(generatedModuleName) {
-    return function defineReplacement(name, deps, func) {
-      var root = (typeof window === 'undefined' ? global : window);
-      var defineGlobal = root.define;
-      var rval;
-      var type;
-  
-      func = [func, deps, name].filter(function (cur) {
-        return typeof cur === 'function';
-      })[0];
-      deps = [deps, name, []].filter(Array.isArray)[0];
-      rval = func.apply(null, deps.map(function (value) {
-        return defineDependencies[value];
-      }));
-      type = typeof rval;
-  
-      // Support existing AMD libs.
-      if (typeof defineGlobal === 'function') {
-        // Almond always expects a name so resolve one (#29).
-        defineGlobal(typeof name === 'string' ? name : generatedModuleName, deps, func);
-      }
-  
-      // Some processors like Babel don't check to make sure that the module value
-      // is not a primitive before calling Object.defineProperty() on it. We ensure
-      // it is an instance so that it can.
-      if (type === 'string') {
-        rval = String(rval);
-      } else if (type === 'number') {
-        rval = Number(rval);
-      } else if (type === 'boolean') {
-        rval = Boolean(rval);
-      }
-  
-      // Reset the exports to the defined module. This is how we convert AMD to
-      // CommonJS and ensures both can either co-exist, or be used separately. We
-      // only set it if it is not defined because there is no object representation
-      // of undefined, thus calling Object.defineProperty() on it would fail.
-      if (rval !== undefined) {
-        exports = module.exports = rval;
-      }
-    };
-  }("__51b0d085f49d51d53774d7f5b0c57ff9");
-  define.amd = true;
-  
-  (function (global, factory) {
-    if (typeof define === 'function' && define.amd) {
-      define(['exports', 'module'], factory);
-    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-      factory(exports, module);
-    } else {
-      var mod = {
-        exports: {}
-      };
-      factory(mod.exports, mod);
-      global.data = mod.exports;
-    }
-  })(this, function (exports, module) {
-  
-    module.exports = function (element) {
-      var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-  
-      var data = element.__SKATE_DATA || (element.__SKATE_DATA = {});
-      return namespace && (data[namespace] || (data[namespace] = {})) || data;
     };
   });
   
@@ -4124,6 +4707,8 @@
         enumerable: true
       };
   
+      // Custom accessor lifecycle functions.
+  
       prop.created = function (elem, initialValue) {
         var info = (0, _data['default'])(elem, 'api/property/' + name);
         info.linkedAttribute = getLinkedAttribute(name, opts.attribute);
@@ -4183,9 +4768,24 @@
         info.internalValue = initialValue;
   
         if (typeof opts.created === 'function') {
-          opts.created(elem, initialValue);
+          opts.created(elem, {
+            name: name,
+            value: initialValue
+          });
         }
       };
+  
+      prop.ready = function (elem, initialValue) {
+        elem[name] = initialValue;
+        if (typeof opts.ready === 'function') {
+          opts.ready(elem, {
+            name: name,
+            value: initialValue
+          });
+        }
+      };
+  
+      // Native accessor functions.
   
       prop.get = function () {
         var info = (0, _data['default'])(this, 'api/property/' + name);
@@ -4342,7 +4942,6 @@
     function propertiesApply(elem, properties) {
       Object.keys(properties).forEach(function (name) {
         var prop = properties[name];
-        var initialValue = elem[name];
   
         // https://bugs.webkit.org/show_bug.cgi?id=49739
         //
@@ -4358,7 +4957,9 @@
         // Once that bug is fixed, the initial value being passed as the second
         // argument to prop.created() can use the overridden property definition to
         // get the initial value.
-        prop.created && prop.created(elem, initialValue);
+        if (prop.created) {
+          prop.created(elem, elem[name]);
+        }
       });
     }
   });
@@ -4420,9 +5021,9 @@
   define.amd = true;
   
   (function (global, factory) {
-    if (typeof define === "function" && define.amd) {
-      define(["exports", "module"], factory);
-    } else if (typeof exports !== "undefined" && typeof module !== "undefined") {
+    if (typeof define === 'function' && define.amd) {
+      define(['exports', 'module'], factory);
+    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
       factory(exports, module);
     } else {
       var mod = {
@@ -4438,7 +5039,9 @@
     function propertiesApply(elem, properties) {
       Object.keys(properties).forEach(function (name) {
         var prop = properties[name];
-        prop.set && prop.set.call(elem, elem[name]);
+        if (typeof prop.ready === 'function') {
+          prop.ready(elem, elem[name]);
+        }
       });
     }
   });
@@ -5033,6 +5636,10 @@
       // Called when the element is created after all descendants have had it
       // called on them.
       created: function created() {},
+  
+      // Responsible for rendering stuff to the host element. This can do anything
+      // you like.
+      render: function render() {},
   
       // Called when the element is detached from the document.
       detached: function detached() {},
@@ -6021,19 +6628,19 @@
   
   exports['default'] = (0, _skatejs2['default'])('todo-person', {
   	properties: {
+  		content: _skatejs2['default'].properties.content({
+  			change: _skatejs2['default'].render
+  		}),
   		nick: _skatejs2['default'].properties.string({
   			attribute: true,
   			set: _skatejs2['default'].render
-  		}),
-  		content: {
-  			set: _skatejs2['default'].render
-  		}
+  		})
   	},
   	render: (0, _skatejsDomDiffSrcRender2['default'])(function (elem, React) {
   		return React.createElement(
   			'a',
   			{ href: 'http://twitter.com/' + elem.nick },
-  			elem.content || elem.nick
+  			elem.content.nodes || elem.nick
   		);
   	})
   });

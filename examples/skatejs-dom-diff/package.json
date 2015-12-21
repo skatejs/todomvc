@@ -1,14 +1,14 @@
 {
   "private": true,
+  "name": "skatejs-dom-diff-todomvc",
+  "version": "0.0.0",
   "dependencies": {
     "skatejs": "0.15.0",
-    "skatejs-dom-diff": "0.2.0",
+    "skatejs-dom-diff": "skatejs/dom-diff#bd48b8d",
     "todomvc-app-css": "^2.0.0",
     "todomvc-common": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "^1.10.3",
-    "eslint-plugin-react": "^3.11.3",
     "gulp": "gulpjs/gulp#3311fca",
     "skatejs-build": "skatejs/build#e4a442f"
   }
