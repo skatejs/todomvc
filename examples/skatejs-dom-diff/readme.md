@@ -25,9 +25,9 @@
 
 ## Implementation
 
-This implementation of TodoMVC uses [SkateJS](https://github.com/skatejs/skatejs) along with [SkateJS DOM Diff](https://github.com/skatejs/dom-diff) and [JSX](https://facebook.github.io/jsx/) to remove a lot of the boilerplate and state maintenance invoved with the [vanilla app](https://github.com/skatejs/todomvc/tree/skatejs/examples/skatejs). The result is a more functional set of components that is very similar to React.
+This implementation of TodoMVC uses [SkateJS](https://github.com/skatejs/skatejs) along with [SkateJS DOM Diff](https://github.com/skatejs/dom-diff) and [JSX](https://facebook.github.io/jsx/) to remove a lot of the boilerplate and state maintenance invoved with the [vanilla app](https://github.com/skatejs/todomvc/tree/skatejs/examples/skatejs). The result is a more functional set of components that is very similar to React. Though you will see a `React` variable used in the code, *React is not used here at all*. What you're seeing is actually just a JSX compatible object that has a `createElement()` method on it so when Babel compiles the JSX in to `React.createElement()` calls, SkateJS DOM Diff's `createElement()` function is called.
 
-Since it utilises future JavaScript features and JSX, it requries a transpile in order to dev, but you should be able to start a server and load up the `index.html` and have a working example.
+Since it utilises future JavaScript features and JSX, it requries a transpile in order to dev, but you are able to load load up the `index.html` and have a working example without running any build steps.
 
 
 ## Credit

@@ -107,6 +107,9 @@ export default skate('todo-app', {
 	created (elem) {
 		elem.items = getStore(elem).getAll();
 	},
+  // The React variable is actually a skatejs-dom-diff object that has a JSX-
+  // compatible createElement() function on it. It's not React, that's just
+  // what Babel compiles down to by default.
 	render: render(function (elem, React) {
 		const store = getStore(elem);
 		return (
