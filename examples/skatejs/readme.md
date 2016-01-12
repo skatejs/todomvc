@@ -28,4 +28,4 @@ This is how you'd build a TodoMVC app with *just* SkateJS using normal DOM means
 
 ## Credit
 
-Created by [Trey Shugart](http://twitter.com/treshugart) and [Alex Reardom](http://twitter.com/alexreardon).
+Created by [Trey Shugart](http://twitter.com/treshugart) and [Alex Reardon](http://twitter.com/alexandereardon).
