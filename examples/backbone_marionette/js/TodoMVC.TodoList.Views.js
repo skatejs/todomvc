@@ -1,15 +1,23 @@
-/*global TodoMVC */
-'use strict';
+/*global TodoMVC: true, Backbone */
 
-TodoMVC.module('TodoList.Views', function (Views, App, Backbone, Marionette) {
+var TodoMVC = TodoMVC || {};
+
+(function () {
+	'use strict';
+
+	var filterChannel = Backbone.Radio.channel('filter');
+
 	// Todo List Item View
 	// -------------------
 	//
 	// Display an individual todo item, and respond to changes
 	// that are made to the item, including marking completed.
-	Views.ItemView = Marionette.ItemView.extend({
+	TodoMVC.TodoView = Mn.View.extend({
+
 		tagName: 'li',
+
 		template: '#template-todoItemView',
+
 		className: function () {
 			return this.model.get('completed') ? 'completed' : 'active';
 		},
@@ -73,15 +81,38 @@ TodoMVC.module('TodoList.Views', function (Views, App, Backbone, Marionette) {
 		}
 	});
 
-	// Item List View
+	// Item List View Body
 	// --------------
 	//
 	// Controls the rendering of the list of items, including the
-	// filtering of activs vs completed items for display.
-	Views.ListView = Backbone.Marionette.CompositeView.extend({
-		template: '#template-todoListCompositeView',
-		childView: Views.ItemView,
-		childViewContainer: '#todo-list',
+	// filtering of items for display.
+	TodoMVC.ListViewBody = Mn.CollectionView.extend({
+		tagName: 'ul',
+
+		id: 'todo-list',
+
+		childView: TodoMVC.TodoView,
+
+		filter: function (child) {
+			var filteredOn = filterChannel.request('filterState').get('filter');
+			return child.matchesFilter(filteredOn);
+		}
+	});
+
+	// Item List View
+	// --------------
+	//
+	// Manages List View
+	TodoMVC.ListView = Mn.View.extend({
+
+		template: '#template-todoListView',
+
+		regions: {
+			listBody: {
+				el: 'ul',
+				replaceElement: true
+			}
+		},
 
 		ui: {
 			toggle: '#toggle-all'
@@ -97,12 +128,7 @@ TodoMVC.module('TodoList.Views', function (Views, App, Backbone, Marionette) {
 		},
 
 		initialize: function () {
-			this.listenTo(App.request('filterState'), 'change:filter', this.render, this);
-		},
-
-		filter: function (child) {
-			var filteredOn = App.request('filterState').get('filter');
-			return child.matchesFilter(filteredOn);
+			this.listenTo(filterChannel.request('filterState'), 'change:filter', this.render, this);
 		},
 
 		setCheckAllState: function () {
@@ -121,6 +147,12 @@ TodoMVC.module('TodoList.Views', function (Views, App, Backbone, Marionette) {
 			this.collection.each(function (todo) {
 				todo.save({ completed: isChecked });
 			});
+		},
+
+		onRender: function () {
+			this.showChildView('listBody', new TodoMVC.ListViewBody({
+				collection: this.collection
+			}));
 		}
 	});
-});
+})();

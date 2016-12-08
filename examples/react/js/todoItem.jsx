@@ -37,7 +37,9 @@ var app = app || {};
 		},
 
 		handleChange: function (event) {
-			this.setState({editText: event.target.value});
+			if (this.props.editing) {
+				this.setState({editText: event.target.value});
+			}
 		},
 
 		getInitialState: function () {
@@ -67,7 +69,7 @@ var app = app || {};
 		 */
 		componentDidUpdate: function (prevProps) {
 			if (!prevProps.editing && this.props.editing) {
-				var node = this.refs.editField.getDOMNode();
+				var node = React.findDOMNode(this.refs.editField);
 				node.focus();
 				node.setSelectionRange(node.value.length, node.value.length);
 			}
@@ -75,7 +77,7 @@ var app = app || {};
 
 		render: function () {
 			return (
-				<li className={React.addons.classSet({
+				<li className={classNames({
 					completed: this.props.todo.completed,
 					editing: this.props.editing
 				})}>

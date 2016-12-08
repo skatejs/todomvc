@@ -43,12 +43,6 @@
 		});
 	};
 
-	function redirect() {
-		if (location.hostname === 'addyosmani.github.io') {
-			location.href = location.href.replace('addyosmani.github.io/todomvc', 'todomvc.com');
-		}
-	}
-
 	var Quotes = {};
 	Quotes.build = function (quotes, template) {
 		var quoteContainer = document.createElement('q');
@@ -146,9 +140,6 @@
 		});
 	};
 
-	// Redirect if not on main site.
-	redirect();
-
 	// Apps popover
 	$('.applist a').persistantPopover();
 
@@ -184,9 +175,10 @@
 	}]);
 
 	function AppTabs() {
-		document.querySelector(AppTabs.selectors.tabs).addEventListener(
-			'core-select', this.onSelect.bind(this));
+		var tabs = document.querySelector(AppTabs.selectors.tabs);
+		tabs.addEventListener('iron-select', this.onSelect.bind(this));
 		this.listHeight = 0;
+		tabs.select(0);
 	}
 
 	AppTabs.selectors = {
@@ -196,26 +188,20 @@
 	};
 
 	AppTabs.prototype.onSelect = function (e) {
-		var selected = e.target.selected;
+		var selected = e.currentTarget.selectedItem.dataset.target;
 		[].slice.call(document.querySelectorAll(AppTabs.selectors.list)).forEach(
 			function (el) {
-				if (!e.detail.isSelected) {
-					// Don't handle unselection events.
-					return;
-				}
-
 				var isSelected = el.dataset.appList === selected;
 				el.style.display = isSelected ? 'block' : 'none';
 				if (isSelected) {
-					this.adjustHeight(el);
+					this.switchTab(el);
 				}
 			}.bind(this)
 		);
 	};
 
-	AppTabs.prototype.adjustHeight = function (e) {
+	AppTabs.prototype.switchTab = function (e) {
 		var list = e.querySelector(AppTabs.selectors.innerList);
-		list.style.height = this.listHeight + 'px';
 		var $clone = $(list)
 			.clone()
 			.css({ visibility: 'hidden' })
@@ -223,9 +209,7 @@
 			.appendTo(list.parentElement);
 
 		window.requestAnimationFrame(function () {
-			var naturalHeight = this.listHeight = $clone.outerHeight();
 			$clone.remove();
-			list.style.height = naturalHeight + 'px';
 		}.bind(this));
 	};
 

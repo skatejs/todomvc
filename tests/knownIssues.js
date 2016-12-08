@@ -1,15 +1,5 @@
 module.exports = [
 
-	// see: https://github.com/tastejs/todomvc/issues/832
-	// chapling brunch does not mark items as completed via the completed CSS class
-	'TodoMVC - chaplin-brunch, No Todos, should hide #main and #footer',
-	'TodoMVC - chaplin-brunch, Mark all as completed, should allow me to mark all items as completed',
-	'TodoMVC - chaplin-brunch, Mark all as completed, complete all checkbox should update state when items are completed / cleared',
-	'TodoMVC - chaplin-brunch, Item, should allow me to mark items as complete',
-	'TodoMVC - chaplin-brunch, Item, should allow me to un-mark items as complete',
-	'TodoMVC - chaplin-brunch, Item, should allow me to edit an item',
-
-
 	// durandal routing is very very slow.
 	// see: https://github.com/tastejs/todomvc/issues/831
 	'TodoMVC - durandal, Routing, should allow me to display active items',
@@ -17,24 +7,18 @@ module.exports = [
 	'TodoMVC - durandal, Routing, should allow me to display all items',
 	'TodoMVC - durandal, Routing, should highlight the currently applied filter',
 
-	// see: https://github.com/tastejs/todomvc/issues/830
-	// typescript-backbone has a nested div within the li element, and sets /li/div[@class=done]
-	'TodoMVC - typescript-backbone, Mark all as completed, should allow me to mark all items as completed / cleared',
-	'TodoMVC - typescript-backbone, Item, should allow me to mark items as complete',
-	'TodoMVC - typescript-backbone, Item, should allow me to un-mark items as complete',
-	'TodoMVC - typescript-backbone, Item, should allow me to edit an item',
-
 	// https://github.com/tastejs/todomvc/issues/828
 	// routing should default to all
-	'TodoMVC - batman, Routing, should highlight the currently applied filter',
 	'TodoMVC - sammyjs, Routing, should highlight the currently applied filter',
 
 	// https://github.com/tastejs/todomvc/issues/824
 	// this implementation has numerous edit experience issues
 	'TodoMVC - angularjs_require, Mark all as completed, should allow me to mark all items as completed',
 	'TodoMVC - angularjs_require, Mark all as completed, should allow me to clear the completion state of all items',
+	// jscs:disable
 	'TodoMVC - angularjs_require, Mark all as completed, complete all checkbox should update state when items are completed / cleared',
 
+	// jscs:enable
 	// https://github.com/tastejs/todomvc/issues/815
 	// does not hide other controls while editing
 	'TodoMVC - dojo, Editing, should hide other controls when editing',
@@ -52,21 +36,16 @@ module.exports = [
 	// the following are covered by the following issue:
 	// https://github.com/tastejs/todomvc/issues/789
 	'TodoMVC - closure, Editing, should cancel edits on escape',
-	'TodoMVC - yui, Editing, should cancel edits on escape',
 	'TodoMVC - ariatemplates, Editing, should cancel edits on escape',
 	'TodoMVC - dermis, Editing, should cancel edits on escape',
 	'TodoMVC - duel, Editing, should cancel edits on escape',
-	'TodoMVC - epitome, Editing, should cancel edits on escape',
 	'TodoMVC - extjs_deftjs, Editing, should cancel edits on escape',
 	'TodoMVC - olives, Editing, should cancel edits on escape',
 	'TodoMVC - rappidjs, Editing, should cancel edits on escape',
 	'TodoMVC - serenadejs, Editing, should cancel edits on escape',
-	'TodoMVC - thorax, Editing, should cancel edits on escape',
 	'TodoMVC - typescript-angular, Editing, should cancel edits on escape',
 	'TodoMVC - flight, Editing, should cancel edits on escape',
-	'TodoMVC - thorax_lumbar, Editing, should cancel edits on escape',
 	'TodoMVC - backbone_require, Editing, should cancel edits on escape',
-	'TodoMVC - batman, Editing, should cancel edits on escape',
 	'TodoMVC - dijon, Editing, should cancel edits on escape',
 	'TodoMVC - knockoutjs_require, Editing, should cancel edits on escape',
 
@@ -74,15 +53,10 @@ module.exports = [
 	// https://github.com/tastejs/todomvc/issues/856
 	'TodoMVC - knockoutjs, Routing, should respect the back button',
 	'TodoMVC - spine, Routing, should respect the back button',
-	'TodoMVC - componentjs, Routing, should respect the back button',
 	'TodoMVC - serenadejs, Routing, should respect the back button',
 	'TodoMVC - flight, Routing, should respect the back button',
 	'TodoMVC - lavaca_require, Routing, should respect the back button',
 	'TodoMVC - somajs_require, Routing, should respect the back button',
-
-	// the following are covered by this issue:
-	// https://github.com/tastejs/todomvc/issues/795
-	'TodoMVC - spine, Mark all as completed, complete all checkbox should update state when items are completed / cleared',
 
 	// the following implementations do not support routing
 	'TodoMVC - extjs_deftjs, Routing, should allow me to display active items',

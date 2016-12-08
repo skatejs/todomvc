@@ -1,219 +1,102 @@
 'use strict';
-var assert = require('assert');
-var Q = require('q');
 
 function TestOperations(page) {
-	// unfortunately webdriver does not have a decent API for determining if an
-	// element exists. The standard approach is to obtain an array of elements
-	// and test that the length is zero. In this case the item is hidden if
-	// it is either not in the DOM, or is in the DOM but not visible.
-	function testIsHidden(elements, name) {
-		if (elements.length === 1) {
-			elements[0].isDisplayed().then(function (isDisplayed) {
-				assert(!isDisplayed, 'the ' + name + ' element should be hidden');
-			});
-		}
-	}
 
-	function testIsVisible(elements, name) {
-		assert.equal(1, elements.length);
-		elements[0].isDisplayed().then(function (isDisplayed) {
-			assert(isDisplayed, 'the ' + name + ' element should be displayed');
-		});
-	}
-
-	this.assertFocussedElementId = function(expectedId) {
-		page.getFocussedElementId().then(function(id) {
-			assert.equal(id, expectedId, 'The focused element did not have the expected id ' + expectedId);
-		});
+	this.assertItemInputFocused = function () {
+		return page.waitForFocusedElement(page.getEditingListItemInputCss(), 'Expected the item input to be focused');
 	};
 
-	this.assertClearCompleteButtonIsHidden = function () {
-		page.tryGetClearCompleteButton().then(function (element) {
-			testIsHidden(element, 'clear completed items button');
-		});
+	this.assertNewInputFocused = function () {
+		return page.waitForFocusedElement(page.getNewInputCss());
 	};
 
-	this.assertClearCompleteButtonIsVisible = function () {
-		page.tryGetClearCompleteButton().then(function (element) {
-			testIsVisible(element, 'clear completed items button');
-		});
+	this.assertNewInputBlurred = function () {
+		return page.waitForBlurredElement(page.getNewInputCss());
 	};
 
 	this.assertItemCount = function (itemCount) {
-		page.getItemElements().then(function (toDoItems) {
-			assert.equal(itemCount, toDoItems.length,
-				itemCount + ' items expected in the todo list, ' + toDoItems.length + ' items observed');
-		});
+		return itemCount === 0 ?
+			page.waitForMainSectionRemovedOrEmpty() :
+			page.waitForListItemCount(itemCount);
 	};
 
 	this.assertClearCompleteButtonText = function (buttonText) {
-		page.tryGetClearCompleteButton().then(function (elements) {
-			var button = elements[0];
-			button.getText().then(function (text) {
-				assert.equal(buttonText, text);
-			});
-		});
+		return page.waitForClearCompleteButton()
+			.then(page.waitForTextContent.bind(page, buttonText, 'Expected clear button text to be ' + buttonText));
 	};
 
-	this.assertMainSectionIsHidden = function () {
-		page.tryGetMainSectionElement().then(function (mainSection) {
-			testIsHidden(mainSection, 'main');
-		});
+	this.assertClearCompleteButtonVisibility = function (shouldBeVisible) {
+		var failMsg = 'Expected the clear completed items button to be ' + (shouldBeVisible ? 'visible' : 'hidden');
+		return page.waitForVisibility(shouldBeVisible, page.getClearCompletedButtonCss(), failMsg);
 	};
 
-	this.assertFooterIsHidden = function () {
-		page.tryGetFooterElement().then(function (footer) {
-			testIsHidden(footer, 'footer');
-		});
+	this.assertMainSectionVisibility = function (shouldBeVisible) {
+		var failMsg = 'Expected main section to be ' + (shouldBeVisible ? 'visible' : 'hidden');
+		return page.waitForVisibility(shouldBeVisible, page.getMainSectionCss(), failMsg);
 	};
 
-	this.assertMainSectionIsVisible = function () {
-		page.tryGetMainSectionElement().then(function (mainSection) {
-			testIsVisible(mainSection, 'main');
-		});
+	this.assertFooterVisibility = function (shouldBeVisible) {
+		var failMsg = 'Expected footer to be ' + (shouldBeVisible ? 'visible' : 'hidden');
+		return page.waitForVisibility(shouldBeVisible, page.getFooterSectionCss(), failMsg);
 	};
 
-	//TODO: fishy!
 	this.assertItemToggleIsHidden = function (index) {
-		page.tryGetToggleForItemAtIndex(index).then(function (toggleItem) {
-			testIsHidden(toggleItem, 'item-toggle');
-		});
+		return page.waitForVisibility(false, page.getListItemToggleCss(index),
+			'Expected the item toggle button to be hidden');
 	};
 
 	this.assertItemLabelIsHidden = function (index) {
-		page.tryGetItemLabelAtIndex(index).then(function (toggleItem) {
-			testIsHidden(toggleItem, 'item-label');
-		});
+		return page.waitForVisibility(false, page.getListItemLabelCss(index), 'Expected the item label to be hidden');
 	};
 
-	this.assertFooterIsVisible = function () {
-		page.tryGetFooterElement().then(function (footer) {
-			testIsVisible(footer, 'footer');
-		});
+	this.assertNewItemInputFieldText = function (text) {
+		return page.waitForNewItemInputField()
+			.then(page.waitForTextContent.bind(page, text,
+				'Expected the new item input text field contents to be ' + text));
 	};
 
-	this.assertItemInputFieldText = function (text) {
-		page.getItemInputField().getText().then(function (inputFieldText) {
-			assert.equal(text, inputFieldText);
-		});
+	this.assertItemText = function (itemIndex, text) {
+		return page.waitForItemLabel(itemIndex)
+			.then(page.waitForTextContent.bind(page, text, 'Expected the item label to be ' + text));
 	};
 
-	this.assertItemText = function (itemIndex, textToAssert) {
-		page.getItemLabelAtIndex(itemIndex).getText().then(function (text) {
-			assert.equal(textToAssert, text,
-				'A todo item with text \'' + textToAssert + '\' was expected at index ' +
-				itemIndex + ', the text \'' + text + '\' was observed');
-		});
-	};
-
-	// tests that the list contains the following items, independant of order
 	this.assertItems = function (textArray) {
-		page.getItemLabels().then(function (labels) {
-
-			// obtain all the visible items
-			var visibleLabels = [];
-			var tests = labels.map(function (label) {
-					return label.isDisplayed().then(function (isDisplayed) {
-						if (isDisplayed) {
-							visibleLabels.push(label);
-						}
-					});
-				});
-
-			// check that they match the supplied text
-			return Q.all(tests).then(function () {
-				assert.equal(textArray.length, visibleLabels.length,
-					textArray.length + ' items expected in the todo list, ' + visibleLabels.length + ' items observed');
-
-				// create an array of promises which check the presence of the
-				// label text within the 'textArray'
-				tests = [];
-				for (var i = 0; i < visibleLabels.length; i++) {
-					// suppressing JSHint - the loop variable is not being used in the function.
-					/* jshint -W083 */
-					tests.push(visibleLabels[i].getText().then(function (text) {
-						var index = textArray.indexOf(text);
-						assert(index !== -1, 'A todo item with text \'' + text + '\' was not expected');
-						// remove this item when found
-						textArray.splice(index, 1);
-					}));
-				}
-
-				// execute all the tests
-				return Q.all(tests);
+		return page.getListItems().then(function (items) {
+			if (items.length < textArray.length) {
+				// This means that the framework removes rather than hides list items
+				textArray = textArray.filter(function (item) { return item !== page.ITEM_HIDDEN_OR_REMOVED; });
+			}
+			var ret;
+			textArray.forEach(function (text, i) {
+				if (text === page.ITEM_HIDDEN_OR_REMOVED) { return; }
+				var promise = page.waitForTextContent(text, 'Expected item text to be ' + text, items[i]);
+				ret = ret ? ret.then(promise) : promise;
 			});
+			return ret;
 		});
 	};
 
-	this.assertItemCountText = function (textToAssert) {
-		page.getItemsCountElement().getText().then(function (text) {
-			assert.equal(textToAssert, text.trim(), 'the item count text was incorrect');
-		});
+	this.assertItemCountText = function (text) {
+		return page.waitForElement(page.getItemCountCss())
+			.then(page.waitForTextContent.bind(page, text, 'Expected item count text to be ' + text));
 	};
 
-	// tests for the presence of the 'completed' CSS class for the item at the given index
-	this.assertItemAtIndexIsCompleted = function (index) {
-		page.getItemElements().then(function (toDoItems) {
-			toDoItems[index].getAttribute('class').then(function (cssClass) {
-				assert(cssClass.indexOf('completed') !== -1,
-					'the item at index ' + index + ' should have been marked as completed');
-			});
-		});
+	this.assertItemCompletedStates = function (completedStates) {
+		return page.waitForElement(
+			page.getListItemsWithCompletedStatesCss(completedStates),
+			'Item completed states were incorrect');
 	};
-
-	this.assertItemAtIndexIsNotCompleted = function (index) {
-		page.getItemElements().then(function (toDoItems) {
-			toDoItems[index].getAttribute('class').then(function (cssClass) {
-				// the maria implementation uses an 'incompleted' CSS class which is redundant
-				// TODO: this should really be moved into the pageLaxMode
-				assert(cssClass.indexOf('completed') === -1 || cssClass.indexOf('incompleted') !== -1,
-					'the item at index ' + index + ' should not have been marked as completed');
-			});
-		});
-	};
-
-	function isSelected(cssClass) {
-		return cssClass.indexOf('selected') !== -1;
-	}
 
 	this.assertFilterAtIndexIsSelected = function (selectedIndex) {
-		page.getFilterElements().then(function (filterElements) {
-
-			// create an array of promises, each one holding a test
-			var tests = [];
-
-			// push a test into the array, avoiding the classic JS for loops + closures issue!
-			function pushTest(itemIndex) {
-				tests.push(filterElements[itemIndex].getAttribute('class').then(function (cssClass) {
-					assert(selectedIndex === itemIndex ? isSelected(cssClass) : !isSelected(cssClass),
-						'the filter / route at index ' + selectedIndex + ' should have been selected');
-				}));
-			}
-
-			for (var i = 0; i < 3; i++) {
-				pushTest(i);
-			}
-
-			// execute all the tests
-			return Q.all(tests);
-		});
+		return page.waitForElement(
+			page.getSelectedFilterCss(selectedIndex),
+			'Expexted the filter / route at index ' + selectedIndex + ' to be selected');
 	};
 
-	this.assertCompleteAllIsClear = function () {
-		page.getMarkAllCompletedCheckBox().then(function (markAllCompleted) {
-			markAllCompleted.isSelected().then(function (isSelected) {
-				assert(!isSelected, 'the mark-all-completed checkbox should be clear');
-			});
-		});
-	};
-
-	this.assertCompleteAllIsChecked = function () {
-		page.getMarkAllCompletedCheckBox().then(function (markAllCompleted) {
-			markAllCompleted.isSelected().then(function (isSelected) {
-				assert(isSelected, 'the mark-all-completed checkbox should be checked');
-			});
-		});
+	this.assertCompleteAllCheckedStatus = function (shouldBeChecked) {
+		var failMsg = 'Expected the mark-all-completed checkbox to be ' + shouldBeChecked ? 'checked' : 'unchecked';
+		return page.waitForMarkAllCompletedCheckBox()
+			.then(page.waitForCheckedStatus.bind(page, shouldBeChecked, failMsg));
 	};
 }
 

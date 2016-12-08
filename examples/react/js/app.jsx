@@ -20,7 +20,8 @@ var app = app || {};
 		getInitialState: function () {
 			return {
 				nowShowing: app.ALL_TODOS,
-				editing: null
+				editing: null,
+				newTodo: ''
 			};
 		},
 
@@ -34,18 +35,22 @@ var app = app || {};
 			router.init('/');
 		},
 
+		handleChange: function (event) {
+			this.setState({newTodo: event.target.value});
+		},
+
 		handleNewTodoKeyDown: function (event) {
-			if (event.which !== ENTER_KEY) {
+			if (event.keyCode !== ENTER_KEY) {
 				return;
 			}
 
 			event.preventDefault();
 
-			var val = this.refs.newField.getDOMNode().value.trim();
+			var val = this.state.newTodo.trim();
 
 			if (val) {
 				this.props.model.addTodo(val);
-				this.refs.newField.getDOMNode().value = '';
+				this.setState({newTodo: ''});
 			}
 		},
 
@@ -128,14 +133,14 @@ var app = app || {};
 
 			if (todos.length) {
 				main = (
-					<section id="main">
+					<section className="main">
 						<input
-							id="toggle-all"
+							className="toggle-all"
 							type="checkbox"
 							onChange={this.toggleAll}
 							checked={activeTodoCount === 0}
 						/>
-						<ul id="todo-list">
+						<ul className="todo-list">
 							{todoItems}
 						</ul>
 					</section>
@@ -144,13 +149,14 @@ var app = app || {};
 
 			return (
 				<div>
-					<header id="header">
+					<header className="header">
 						<h1>todos</h1>
 						<input
-							ref="newField"
-							id="new-todo"
+							className="new-todo"
 							placeholder="What needs to be done?"
+							value={this.state.newTodo}
 							onKeyDown={this.handleNewTodoKeyDown}
+							onChange={this.handleChange}
 							autoFocus={true}
 						/>
 					</header>
@@ -166,7 +172,7 @@ var app = app || {};
 	function render() {
 		React.render(
 			<TodoApp model={model}/>,
-			document.getElementById('todoapp')
+			document.getElementsByClassName('todoapp')[0]
 		);
 	}
 

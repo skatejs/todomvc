@@ -1,9 +1,5 @@
 /*global define */
 define({
-	// Cujo uses OOCSS principles and thus separates theme (skin)
-	// from structure CSS.
-	theme: { module: 'css!theme/base.css' },
-
 	// The root node where all the views will be inserted
 	root: { $ref: 'dom!todoapp' },
 
@@ -174,7 +170,8 @@ define({
 		}
 	},
 
-	plugins: [ //'wire/debug',
+	plugins: [
+		// 'wire/debug',
 		'wire/dom', 'wire/dom/render', 'wire/on',
 		'wire/aop', 'wire/connect', 'cola'
 	]
