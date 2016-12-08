@@ -1,3 +1,0 @@
-describe('storage', function(){
-
-});
