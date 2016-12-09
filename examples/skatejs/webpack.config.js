@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 module.exports = {
   devtool: 'source-map',
   entry: {
@@ -18,5 +20,9 @@ module.exports = {
       test: /\.js$/,
       exclude: /node_modules/
     }]
-  }
+  },
+  plugins: [new webpack.optimize.UglifyJsPlugin({
+    include: /\.js$/,
+    minimize: true
+  })]
 };

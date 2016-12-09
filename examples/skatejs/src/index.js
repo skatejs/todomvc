@@ -136,18 +136,21 @@ class TodoApp extends Component {
               {` item${getPlural(incompleteTodosLength)} left`}
             </span>
 
-            {/* Remove this if you don't implement routing
-            <ul class={classes.filters}>
-              <li>
-                <a class={classes.selected} href='#/'>All</a>
-              </li>
-              <li>
-                <a href='#/active'>Active</a>
-              </li>
-              <li>
-                <a href='#/completed'>Completed</a>
-              </li>
-            </ul> */}
+            {/*
+              Remove this if you don't implement routing
+              TODO should we anyways?
+              <ul class={classes.filters}>
+                <li>
+                  <a class={classes.selected} href='#/'>All</a>
+                </li>
+                <li>
+                  <a href='#/active'>Active</a>
+                </li>
+                <li>
+                  <a href='#/completed'>Completed</a>
+                </li>
+              </ul>
+            */}
 
             {todosCompletedLength ? (
               <button
