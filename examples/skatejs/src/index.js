@@ -26,15 +26,20 @@ function getTodoMode (todo) {
   return '';
 }
 
+function parseIndex (target) {
+  return parseFloat(target.getAttribute('data-todo-index'));
+}
+
 class TodoApp extends Component {
   static props = {
     currentValue: prop.string(),
+    editingValue: prop.string(),
     todos: prop.array()
   }
   handleChange = (e) => {
     const { todos } = this;
     const { target, target: { checked }} = e;
-    const todoIndex = parseFloat(target.getAttribute('data-todo-index'));
+    const todoIndex = parseIndex(target);
     this.todos = todos.map((todo, currentTodoIndex) => {
       if (currentTodoIndex === todoIndex) {
         todo.isCompleted = checked;
@@ -45,8 +50,30 @@ class TodoApp extends Component {
   handleClear = () => {
     this.todos = this.todos.filter(todo => !todo.isCompleted);
   }
+  handleStartEditing = (e) => {
+    const todoIndex = parseIndex(e.target);
+    this.todos = this.todos.map((todo, currentTodoIndex) => {
+      if (currentTodoIndex === todoIndex) {
+        todo.isEditing = true;
+      }
+      return todo;
+    });
+  }
+  handleStopEditing = (e) => {
+    const { target } = e;
+    const todoIndex = parseIndex(target);
+    e.preventDefault();
+    this.todos = this.todos.map((todo, currentTodoIndex) => {
+      if (currentTodoIndex === todoIndex) {
+        todo.description = this.editingValue;
+        todo.isEditing = false;
+      }
+      return todo;
+    });
+    this.editingValue = '';
+  }
   handleRemove = (e) => {
-    const todoIndex = parseFloat(e.target.getAttribute('data-todo-index'));
+    const todoIndex = parseIndex(e.target);
     e.preventDefault();
     this.todos = this.todos.filter((todo, currentTodoIndex) => currentTodoIndex !== todoIndex);
   }
@@ -68,10 +95,13 @@ class TodoApp extends Component {
   }
   renderCallback ({
     currentValue,
+    editingValue,
     handleChange,
     handleClear,
     handleRemove,
     handleToggle,
+    handleStartEditing,
+    handleStopEditing,
     handleSubmit,
     todos
   }) {
@@ -99,8 +129,9 @@ class TodoApp extends Component {
         {todosLength ? (
           <section class={classes.main}>
             <input
-              class={classes.toggleAll} type='checkbox'
+              class={classes.toggleAll}
               onChange={handleToggle}
+              type='checkbox'
             />
             <label for='toggle-all'>Mark all as complete</label>
             <ul class={classes.todoList}>
@@ -114,14 +145,27 @@ class TodoApp extends Component {
                       onChange={handleChange}
                       type='checkbox'
                     />
-                    <label>{todo.description}</label>
+                    <label
+                      data-todo-index={todoIndex}
+                      onDblclick={handleStartEditing}
+                    >{todo.description}</label>
                     <button
                       class={classes.destroy}
                       data-todo-index={todoIndex}
                       onClick={handleRemove}
                     />
                   </div>
-                  <input class={classes.edit} value='Create a TodoMVC template' />
+                  <form
+                    data-todo-index={todoIndex}
+                    onSubmit={handleStopEditing}
+                  >
+                    <input
+                      class={classes.edit}
+                      name="editingValue"
+                      onChange={link(this)}
+                      value={editingValue || todo.description}
+                    />
+                  </form>
                 </li>
               ))}
             </ul>
