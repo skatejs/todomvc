@@ -12,7 +12,7 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
-    "skatejs": "^4.2.2",
+    "skatejs": "^4.3.0",
     "skatejs-web-components": "^5.0.0",
     "todomvc-app-css": "^2.0.6",
     "todomvc-common": "^1.0.3"

@@ -66,16 +66,15 @@ class TodoApp extends Component {
       return todo;
     });
   }
-  renderCallback () {
-    const {
-      currentValue,
-      handleChange,
-      handleClear,
-      handleRemove,
-      handleToggle,
-      handleSubmit,
-      todos
-    } = this;
+  renderCallback ({
+    currentValue,
+    handleChange,
+    handleClear,
+    handleRemove,
+    handleToggle,
+    handleSubmit,
+    todos
+  }) {
     const { length: todosLength } = todos;
     const { length: todosCompletedLength } = getCompleted(todos);
     const incompleteTodosLength = todosLength - todosCompletedLength;

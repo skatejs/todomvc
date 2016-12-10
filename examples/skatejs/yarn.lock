@@ -2288,13 +2288,6 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-skatejs:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/skatejs/-/skatejs-4.2.2.tgz#3c96bab4fc61e8c77da685eacf8978e804b24b21"
-  dependencies:
-    incremental-dom "0.4.1"
-    window-or-global "1.0.1"
-
 skatejs-web-components:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/skatejs-web-components/-/skatejs-web-components-5.0.0.tgz#c350ec9614d88cc1331602f4827ecc7210d3286d"
@@ -2302,6 +2295,13 @@ skatejs-web-components:
     "@webcomponents/custom-elements" "https://github.com/webcomponents/custom-elements/archive/fc022e8.tar.gz"
     "@webcomponents/shadycss" "https://github.com/webcomponents/shadycss/archive/19a46c9.tar.gz"
     "@webcomponents/shadydom" "https://github.com/webcomponents/shadydom/archive/c162774.tar.gz"
+
+skatejs@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/skatejs/-/skatejs-4.3.0.tgz#2a5c163fb9a7fcce76c33fc6a78fac295848be5a"
+  dependencies:
+    incremental-dom "0.4.1"
+    window-or-global "1.0.1"
 
 sntp@1.x.x:
   version "1.0.9"
